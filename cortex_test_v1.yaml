@@ -1,0 +1,3611 @@
+name: CORTEX_TEST_V1
+description: Testing Cortex for Chatbot Option
+tables:
+  - name: BRANDS
+    base_table:
+      database: OMEGA
+      schema: PROD
+      table: BRANDS
+    dimensions:
+      - name: DESCRIPTION
+        expr: '"description"'
+        data_type: VARCHAR(16777216)
+      - name: NAME
+        expr: '"name"'
+        data_type: VARCHAR(16777216)
+    facts:
+      - name: BRANDPARTNER_ID
+        expr: '"brandpartner_id"'
+        data_type: NUMBER(10,0)
+        access_modifier: public_access
+      - name: ID
+        expr: '"id"'
+        data_type: NUMBER(10,0)
+        access_modifier: public_access
+    time_dimensions:
+      - name: CREATED_AT
+        expr: '"created_at"'
+        data_type: TIMESTAMP_NTZ(9)
+      - name: UPDATED_AT
+        expr: '"updated_at"'
+        data_type: TIMESTAMP_NTZ(9)
+  - name: INVENTORY_CVS_STORE
+    base_table:
+      database: OMEGA
+      schema: PROD
+      table: INVENTORY_CVS_STORE
+    dimensions:
+      - name: CATEGORY_DESC
+        expr: '"Category Desc"'
+        data_type: VARCHAR(2000)
+      - name: EG_BRAND
+        synonyms:
+          - product_brand
+          - manufacturer
+          - brand_name
+          - product_maker
+          - supplier_name
+          - vendor_name
+          - company_name
+        description: The brand name of the product in the CVS store's inventory, indicating whether it is a national brand (e.g. Wahl, Neutrogena) or a private label brand owned by CVS (e.g. Store Brand).
+        expr: EG_BRAND
+        data_type: VARCHAR(2000)
+        sample_values:
+          - WAHL HAIR CUT KITS
+          - NEUTROGENA
+          - STORE BRAND
+      - name: EG_CLIENT
+        synonyms:
+          - client_name
+          - client_code
+          - external_group_client
+          - client_id
+          - client_identifier
+        description: The EG_CLIENT column represents the name of the external general client or vendor that supplies products to CVS stores, indicating the source of the inventory.
+        expr: EG_CLIENT
+        data_type: VARCHAR(100)
+        sample_values:
+          - KENVUE
+          - LIVING ESSENTIALS
+          - JR WATKINS
+      - name: IM_CATEGORY
+        synonyms:
+          - item_category
+          - product_category
+          - inventory_category
+          - merchandise_category
+          - product_group
+        description: The category of the item in the inventory, which groups similar products together for inventory management and reporting purposes.
+        expr: IM_CATEGORY
+        data_type: VARCHAR(100)
+      - name: IM_SEGMENT
+        synonyms:
+          - market_segment
+          - product_segment
+          - segment_category
+          - business_segment
+          - product_group
+        description: The IM_SEGMENT column represents the Inventory Management Segment, which categorizes inventory items based on their sales velocity, profitability, and other business factors to optimize inventory levels and management strategies.
+        expr: IM_SEGMENT
+        data_type: VARCHAR(100)
+      - name: IM_SUBCATEGORY
+        synonyms:
+          - sub_category
+          - item_subcategory
+          - product_subcategory
+          - sub_group
+          - sub_class
+          - sub_type
+        description: A subcategory of the product, providing a more specific classification within the main category, to help with inventory management and analysis.
+        expr: IM_SUBCATEGORY
+        data_type: VARCHAR(100)
+      - name: PENDING_DISCO_DATE
+        expr: '"Pending Disco Date"'
+        data_type: VARCHAR(2000)
+      - name: RETAILER
+        synonyms:
+          - seller
+          - merchant
+          - store
+          - vendor
+          - supplier
+          - distributor
+          - trader
+          - dealer
+        description: The name of the retailer associated with the inventory data, indicating that the inventory is located at a CVS store.
+        expr: RETAILER
+        data_type: VARCHAR(3)
+        sample_values:
+          - CVS
+      - name: SKU_
+        expr: '"SKU #"'
+        data_type: VARCHAR(2000)
+      - name: SKU_DESC
+        expr: '"SKU Desc"'
+        data_type: VARCHAR(2000)
+      - name: STORE_V_WH
+        synonyms:
+          - warehouse_id
+          - store_warehouse
+          - store_number
+          - warehouse_code
+          - distribution_center_id
+          - store_id
+          - warehouse_identifier
+        description: The warehouse associated with the store.
+        expr: STORE_V_WH
+        data_type: VARCHAR(5)
+        sample_values:
+          - STORE
+    facts:
+      - name: AVG_PRICE
+        synonyms:
+          - average_price
+          - mean_price
+          - price_average
+          - average_cost
+          - unit_price
+          - mean_cost
+          - price_mean
+        description: The average price of items in the inventory at CVS stores.
+        expr: AVG_PRICE
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '19.524782609'
+          - '9.93114094'
+          - '19.480702948'
+      - name: BOH_UNITS_DC
+        expr: '"BOH Units - DC"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: BOH_UNITS_STORE
+        expr: '"BOH Units - Store"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: BOO_UNITS
+        expr: '"BOO Units"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: IN_STOCK_STORE
+        expr: '"In Stock % - Store"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: SALES
+        synonyms:
+          - revenue
+          - total_revenue
+          - total_sales_amount
+          - sales_total
+          - sales_figure
+          - sales_value
+        description: The total sales amount for a specific product or category at a CVS store location.
+        expr: SALES
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '50623.94'
+          - '44869.43'
+          - '4439.22'
+      - name: TOTAL_SALES_$
+        expr: '"Total Sales $"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: TOTAL_UNITS
+        expr: '"Total Units"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: UNITS
+        synonyms:
+          - quantity
+          - amount
+          - count
+          - volume
+          - total_units
+          - unit_count
+          - item_count
+          - stock_level
+          - inventory_level
+        description: The total quantity of a specific product or item currently stocked in the CVS store.
+        expr: UNITS
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '1266'
+          - '1379'
+          - '4734'
+      - name: WOS_TOTAL_SALES_COMBINED_LFM_
+        expr: '"WOS Total Sales - Combined (LFM)"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: WOS_TOTAL_SALES_DC_LFM_
+        expr: '"WOS Total Sales - DC (LFM)"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: WOS_TOTAL_SALES_STORE_LFM_
+        expr: '"WOS Total Sales - Store (LFM)"'
+        data_type: FLOAT
+        access_modifier: public_access
+    time_dimensions:
+      - name: WEEK_END_DATE
+        synonyms:
+          - end_of_week_date
+          - week_close_date
+          - last_day_of_week
+          - weekly_cutoff_date
+          - end_date
+          - week_end
+          - weekly_end_date
+        description: The date when the inventory level was last updated or reported for the CVS store.
+        expr: WEEK_END_DATE
+        data_type: DATE
+        sample_values:
+          - '2024-04-08'
+          - '2023-11-06'
+          - '2023-03-20'
+  - name: INVENTORY_DOLLAR_GENERAL_DC
+    base_table:
+      database: OMEGA
+      schema: PROD
+      table: INVENTORY_DOLLAR_GENERAL_DC
+    dimensions:
+      - name: EG_BRAND
+        synonyms:
+          - product_brand
+          - brand_name
+          - manufacturer
+          - product_maker
+          - supplier_name
+          - brand_label
+        description: The brand name of the product in the inventory.
+        expr: EG_BRAND
+        data_type: VARCHAR(2000)
+        sample_values:
+          - SUAVE Hair - Women's Styling Berry
+          - MENTHOLATUM
+          - SUAVE Deodorant
+      - name: EG_CATEGORY
+        synonyms:
+          - product_category
+          - category_name
+          - item_category
+          - product_group
+          - classification
+          - product_type
+        description: The category of the product or item in the inventory, as classified by the company's product categorization system, which groups similar products together for reporting and analysis purposes.
+        expr: EG_CATEGORY
+        data_type: VARCHAR(100)
+      - name: EG_CLIENT
+        synonyms:
+          - client_name
+          - customer_name
+          - client_code
+          - client_id
+          - account_name
+          - customer_code
+          - client_identifier
+        description: Client or brand name associated with the inventory item.
+        expr: EG_CLIENT
+        data_type: VARCHAR(2000)
+        sample_values:
+          - SUAVE
+          - CHAPSTICK
+          - MENTHOLATUM
+      - name: EG_SEGMENT
+        synonyms:
+          - market_segment
+          - product_segment
+          - customer_segment
+          - business_segment
+          - product_category_group
+        description: The EG_SEGMENT column represents the specific segment or category of products within the inventory, allowing for grouping and analysis of similar items, such as food, household essentials, or personal care products, to better understand sales trends and inventory levels.
+        expr: EG_SEGMENT
+        data_type: VARCHAR(100)
+      - name: EG_SUBCATEGORY
+        synonyms:
+          - subcategory_name
+          - subcategory_label
+          - subcategory_description
+          - subcategory_code
+          - subcategory_type
+          - subcategory_classification
+        description: A subcategory of products within the Electronics category, providing a more specific classification of items such as TVs, laptops, tablets, gaming systems, and other electronic devices.
+        expr: EG_SUBCATEGORY
+        data_type: VARCHAR(100)
+      - name: RETAILER
+        synonyms:
+          - seller
+          - merchant
+          - store
+          - supplier
+          - vendor
+          - distributor
+          - trader
+          - dealer
+        description: The name of the retailer associated with the inventory data, indicating that the inventory is managed by Dollar General.
+        expr: RETAILER
+        data_type: VARCHAR(14)
+        sample_values:
+          - DOLLAR GENERAL
+      - name: RETAILER_ITEMDESCRIPTION
+        synonyms:
+          - item_description
+          - product_name
+          - item_info
+          - product_info
+          - item_details
+          - product_details
+          - item_text
+          - product_text
+          - description
+          - item_label
+        description: Description of the products stocked in the inventory.
+        expr: RETAILER_ITEMDESCRIPTION
+        data_type: VARCHAR(2000)
+        sample_values:
+          - 'SUAVE H/SPRY NA #8 UNSCNT'
+          - CHAPSTICK T-HYD OASIS
+          - SUAVE AP/DEO-POWDER 1.2
+      - name: RETAILER_ITEMNUMBER
+        synonyms:
+          - item_number
+          - product_code
+          - sku
+          - stock_number
+          - product_id
+          - item_id
+          - article_number
+          - product_identifier
+        description: Unique identifier for the item as assigned by the retailer.
+        expr: RETAILER_ITEMNUMBER
+        data_type: VARCHAR(2000)
+        sample_values:
+          - '00509804'
+          - '17264501'
+          - '00508201'
+      - name: STORE_V_WH
+        synonyms:
+          - warehouse
+          - distribution_center
+          - storage_facility
+          - inventory_hub
+          - logistics_center
+          - storage_warehouse
+          - fulfillment_center
+        description: Distribution Center where the inventory is stored.
+        expr: STORE_V_WH
+        data_type: VARCHAR(2)
+        sample_values:
+          - DC
+    facts:
+      - name: AUTHORIZED_STORES
+        expr: '"Authorized Stores"'
+        data_type: NUMBER(20,0)
+        access_modifier: public_access
+      - name: AVG_PRICE
+        synonyms:
+          - average_price
+          - mean_price
+          - price_average
+          - unit_price
+          - average_cost
+          - average_value
+          - mean_cost
+          - price_mean
+        description: The average price of an item in the inventory.
+        expr: AVG_PRICE
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '4.943044394'
+          - '2.965529586'
+          - '11.527215514'
+      - name: COMP_PER_EOP_DC_DEMAND_RETAIL_$
+        expr: '"Comp. Per. EoP DC Demand Retail $"'
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+      - name: COMP_PER_EOP_DC_INV_UNITS
+        expr: '"Comp. Per. EoP DC Inv Units"'
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+      - name: COMP_PER_EOP_DC_SERVICE_LEVEL
+        expr: '"Comp. Per. EoP DC Service Level"'
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+      - name: CURR_PER_EOP_DC_DEMAND_RETAIL_$
+        expr: '"Curr. Per. EoP DC Demand Retail $"'
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+      - name: CURR_PER_EOP_DC_INV_UNITS
+        expr: '"Curr. Per. EoP DC Inv Units"'
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+      - name: CURR_PER_EOP_DC_SERVICE_LEVEL
+        expr: '"Curr. Per. EoP DC Service Level"'
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+      - name: INSTOCK_TARGET
+        expr: '"Instock Target"'
+        data_type: NUMBER(20,5)
+        access_modifier: public_access
+      - name: SALES
+        synonyms:
+          - revenue
+          - turnover
+          - total_sales
+          - gross_sales
+          - sales_volume
+          - sales_amount
+          - sales_figure
+        description: The total sales amount for each item in the inventory.
+        expr: SALES
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '33741.38'
+          - '55198.05'
+          - '113532.9'
+      - name: STORES_W_OOS
+        expr: '"Stores w/OOS"'
+        data_type: NUMBER(20,0)
+        access_modifier: public_access
+      - name: STORE_INSTOCK_PCT
+        synonyms:
+          - in_stock_percentage
+          - inventory_availability_rate
+          - stock_availability_percentage
+          - percentage_in_stock
+          - instock_rate
+        description: The percentage of inventory that is currently in stock at the store.
+        expr: STORE_INSTOCK_PCT
+        data_type: NUMBER(20,5)
+        access_modifier: public_access
+        sample_values:
+          - '0.91772'
+          - '0.98919'
+          - '0.98161'
+      - name: UNITS
+        synonyms:
+          - quantity
+          - amount
+          - stock_level
+          - inventory_count
+          - item_count
+          - stock_quantity
+          - product_quantity
+        description: The total quantity of items in stock.
+        expr: UNITS
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '4657'
+          - '3110'
+          - '15014'
+      - name: _STORES_W_OOS
+        expr: '"% Stores w/OOS"'
+        data_type: NUMBER(20,5)
+        access_modifier: public_access
+    time_dimensions:
+      - name: WEEK_END_DATE
+        synonyms:
+          - end_of_week_date
+          - week_close_date
+          - reporting_date
+          - period_end_date
+          - cycle_end_date
+          - weekly_cutoff_date
+        description: The date when the inventory level was last updated or reported, typically representing the end of a weekly inventory cycle.
+        expr: WEEK_END_DATE
+        data_type: DATE
+        sample_values:
+          - '2023-11-06'
+          - '2024-08-12'
+          - '2024-08-05'
+  - name: INVENTORY_DOLLAR_GENERAL_STORE
+    base_table:
+      database: OMEGA
+      schema: PROD
+      table: INVENTORY_DOLLAR_GENERAL_STORE
+    dimensions:
+      - name: EG_BRAND
+        synonyms:
+          - product_brand
+          - manufacturer
+          - brand_name
+          - product_maker
+          - supplier_name
+          - company_name
+        description: The brand name of the product in the inventory.
+        expr: EG_BRAND
+        data_type: VARCHAR(2000)
+        sample_values:
+          - SUAVE Hair - Women's Styling Berry
+          - SUAVE Deodorant
+          - CHAPSTICK LIP CARE
+      - name: EG_CATEGORY
+        synonyms:
+          - product_category
+          - category_name
+          - item_category
+          - product_group
+          - classification
+          - type
+          - product_type
+          - category_description
+        description: The category of the product or item in the inventory, such as food, household, health and beauty, etc.
+        expr: EG_CATEGORY
+        data_type: VARCHAR(100)
+      - name: EG_CLIENT
+        synonyms:
+          - client_name
+          - customer_name
+          - client_code
+          - client_id
+          - account_name
+          - customer_code
+          - client_identifier
+        description: The client or customer name associated with the inventory item, typically a supplier or vendor, such as Suave or Chapstick.
+        expr: EG_CLIENT
+        data_type: VARCHAR(2000)
+        sample_values:
+          - SUAVE
+          - CHAPSTICK
+      - name: EG_SEGMENT
+        synonyms:
+          - market_segment
+          - product_segment
+          - category_segment
+          - business_segment
+          - product_category
+          - market_category
+          - segment_type
+          - product_group
+        description: The EG_SEGMENT column represents the specific product segment or category within the Dollar General store's inventory, such as food, household, health and beauty, or apparel, which helps in organizing and analyzing inventory by distinct product groups.
+        expr: EG_SEGMENT
+        data_type: VARCHAR(100)
+      - name: EG_SUBCATEGORY
+        synonyms:
+          - subcategory_name
+          - subcategory_label
+          - product_subcategory
+          - item_subcategory
+          - subcategory_description
+          - subcategory_code
+        description: The subcategory of the product within the Electronics department, such as TVs, Laptops, Tablets, etc.
+        expr: EG_SUBCATEGORY
+        data_type: VARCHAR(100)
+      - name: RETAILER
+        synonyms:
+          - seller
+          - merchant
+          - store
+          - vendor
+          - supplier
+          - distributor
+          - trader
+          - dealer
+        description: The name of the retailer associated with the inventory data, indicating that the products are sold at Dollar General stores.
+        expr: RETAILER
+        data_type: VARCHAR(14)
+        sample_values:
+          - DOLLAR GENERAL
+      - name: RETAILER_ITEMDESCRIPTION
+        synonyms:
+          - item_description
+          - product_name
+          - item_name
+          - product_info
+          - item_info
+          - product_details
+          - item_details
+        description: Description of the products sold by the retailer, including the brand name, product type, and other relevant details.
+        expr: RETAILER_ITEMDESCRIPTION
+        data_type: VARCHAR(2000)
+        sample_values:
+          - SUAVE AP/DEO-POWDER 1.2
+          - 'SUAVE H/SPRY NA #8 UNSCNT'
+      - name: RETAILER_ITEMNUMBER
+        synonyms:
+          - item_number
+          - product_code
+          - sku
+          - product_id
+          - item_id
+          - stock_number
+          - product_identifier
+        description: Unique identifier for an item sold by the retailer.
+        expr: RETAILER_ITEMNUMBER
+        data_type: VARCHAR(2000)
+        sample_values:
+          - '13482901'
+          - '00508201'
+          - '39326001'
+      - name: STORE_V_WH
+        synonyms:
+          - warehouse_id
+          - warehouse_number
+          - distribution_center
+          - storage_facility
+          - warehouse_code
+        description: The warehouse or distribution center that supplies the store.
+        expr: STORE_V_WH
+        data_type: VARCHAR(5)
+        sample_values:
+          - STORE
+    facts:
+      - name: AUTHORIZED_STORES
+        expr: '"Authorized Stores"'
+        data_type: NUMBER(20,0)
+        access_modifier: public_access
+      - name: INSTOCK_TARGET
+        expr: '"Instock Target"'
+        data_type: NUMBER(20,5)
+        access_modifier: public_access
+      - name: IN_STOCK_
+        expr: '"In Stock %"'
+        data_type: NUMBER(20,5)
+        access_modifier: public_access
+      - name: SALES
+        synonyms:
+          - revenue
+          - turnover
+          - gross_sales
+          - total_sales
+          - sales_volume
+          - sales_amount
+        description: The total sales amount for each item or product in the inventory of the Dollar General Store.
+        expr: SALES
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '22823.24'
+          - '50586.03'
+          - '16563.83'
+      - name: STORES_W_OOS
+        expr: '"Stores w/OOS"'
+        data_type: NUMBER(20,0)
+        access_modifier: public_access
+      - name: UNITS
+        synonyms:
+          - quantity
+          - amount
+          - count
+          - volume
+          - stock_level
+          - inventory_level
+          - item_count
+          - product_quantity
+        description: The total quantity of items in stock for each product in the Dollar General store's inventory.
+        expr: UNITS
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '21923'
+          - '10860'
+          - '14157'
+      - name: _STORES_W_OOS
+        expr: '"% Stores w/OOS"'
+        data_type: NUMBER(20,5)
+        access_modifier: public_access
+    time_dimensions:
+      - name: WEEK_END_DATE
+        synonyms:
+          - end_of_week_date
+          - week_close_date
+          - weekly_cutoff_date
+          - period_end_date
+          - reporting_date
+          - cycle_end_date
+          - weekly_end_date
+          - period_close_date
+        description: The date when the inventory level was last updated or counted, typically a Sunday, marking the end of the weekly inventory cycle.
+        expr: WEEK_END_DATE
+        data_type: DATE
+        sample_values:
+          - '2024-03-11'
+          - '2024-03-18'
+          - '2024-05-06'
+  - name: INVENTORY_FAMILYDOLLAR_DC
+    base_table:
+      database: OMEGA
+      schema: PROD
+      table: INVENTORY_FAMILYDOLLAR_DC
+    dimensions:
+      - name: BRAND_ITEMNUMBER
+        synonyms:
+          - item_number
+          - product_code
+          - sku_number
+          - brand_sku
+          - product_id
+          - item_code
+          - stock_number
+          - product_identifier
+        description: Unique identifier for a product, combining the brand and item number.
+        expr: BRAND_ITEMNUMBER
+        data_type: VARCHAR(50)
+        sample_values:
+          - '86384299'
+          - D-085F
+          - '69773356'
+      - name: EG_BRAND
+        expr: '"EG BRAND"'
+        data_type: VARCHAR(2000)
+      - name: EG_CATEGORY
+        synonyms:
+          - product_category
+          - item_category
+          - category_name
+          - product_group
+          - classification
+          - product_type
+          - item_type
+          - category_description
+        description: The EG_CATEGORY column represents the category of the product within the inventory, likely grouping similar items together for reporting and analysis purposes, such as "Food", "Household", "Health and Beauty", etc.
+        expr: EG_CATEGORY
+        data_type: VARCHAR(100)
+      - name: EG_CLIENT
+        synonyms:
+          - client_name
+          - client_code
+          - client_id
+          - customer_name
+          - customer_code
+          - account_name
+          - account_code
+          - partner_name
+          - partner_code
+        description: The client or business partner that the inventory is associated with, indicating the specific company or entity that the inventory belongs to or is being managed for.
+        expr: EG_CLIENT
+        data_type: VARCHAR(2000)
+        sample_values:
+          - GRANULES
+          - CARMA
+          - SCHOLLS WELLNESS
+      - name: EG_SEGMENT
+        synonyms:
+          - market_segment
+          - product_segment
+          - segment_category
+          - business_segment
+          - product_group
+        description: Segmentation of the product based on the product's characteristics, such as food, non-food, health and beauty, household, etc., used to categorize and analyze sales and inventory performance.
+        expr: EG_SEGMENT
+        data_type: VARCHAR(100)
+      - name: EG_SUBCATEGORY
+        synonyms:
+          - subcategory_name
+          - subcategory_label
+          - subcategory_description
+          - subcategory_code
+          - subcategory_id
+          - subcategory_title
+          - subcategory_classification
+          - subcategory_group
+        description: A subcategory classification of a product within a category, providing a more specific grouping of similar items, such as "Beverages - Soda" or "Household - Cleaning Supplies".
+        expr: EG_SUBCATEGORY
+        data_type: VARCHAR(100)
+      - name: RETAILER
+        synonyms:
+          - store
+          - merchant
+          - vendor
+          - supplier
+          - seller
+          - distributor
+          - trader
+          - dealer
+          - shop
+          - outlet
+        description: The name of the retailer associated with the inventory data, indicating the specific retail chain or store where the inventory is located.
+        expr: RETAILER
+        data_type: VARCHAR(13)
+        sample_values:
+          - FAMILY DOLLAR
+      - name: RETAILER_SKU_DESCRIPTION
+        synonyms:
+          - item_description
+          - product_info
+          - sku_details
+          - product_name
+          - item_info
+          - product_description
+          - sku_info
+        description: Description of the product as it appears on the retailer's shelf, including brand name, product name, flavor, and size.
+        expr: RETAILER_SKU_DESCRIPTION
+        data_type: VARCHAR(2000)
+        sample_values:
+          - CARMEX SITCK SPF 15 TROPICAL COLADA.15OZ
+          - CARMEX STRWBRRY STCK W SPF 15 .15OZ
+          - BAUSCH LOMB ALAWAY .34 OZ
+    facts:
+      - name: AT_DC_EOP_UNITS
+        expr: '"At DC EoP Units"'
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+      - name: AVG_PRICE
+        synonyms:
+          - average_price
+          - mean_price
+          - price_average
+          - average_cost
+          - unit_price
+          - mean_cost
+          - price_mean
+        description: The average price of items in the inventory.
+        expr: AVG_PRICE
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '6.28502584'
+          - '2.873745119'
+          - '1.811132911'
+      - name: IN_STOCK_PCT
+        synonyms:
+          - stock_percentage
+          - inventory_percentage
+          - in_stock_rate
+          - stock_level_percentage
+          - availability_percentage
+          - fill_rate
+          - stock_fill_rate
+          - inventory_fill_rate
+        description: The percentage of time that a product is in stock at a store location.
+        expr: IN_STOCK_PCT
+        data_type: NUMBER(19,6)
+        access_modifier: public_access
+        sample_values:
+          - '0.692308'
+          - '0.076923'
+          - '0.285714'
+      - name: RETAILER_SKU
+        synonyms:
+          - item_number
+          - product_code
+          - sku_id
+          - stock_keeping_unit
+          - product_identifier
+          - vendor_sku
+          - supplier_sku
+          - item_code
+        description: Unique identifier for a product as assigned by the retailer.
+        expr: RETAILER_SKU
+        data_type: NUMBER(10,0)
+        access_modifier: public_access
+        sample_values:
+          - '998391'
+          - '997497'
+          - '901898'
+      - name: SALES
+        synonyms:
+          - revenue
+          - turnover
+          - total_sales
+          - gross_sales
+          - sales_volume
+          - sales_amount
+          - sales_figure
+        description: The total sales amount for each inventory item in the Family Dollar distribution center.
+        expr: SALES
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '5988.18'
+          - '1.5'
+          - '5517.92'
+      - name: SKU_INSTOCK_COUNT
+        synonyms:
+          - available_sku_count
+          - in_stock_sku_quantity
+          - sku_in_stock_quantity
+          - sku_availability_count
+          - stocked_sku_count
+        description: The current quantity of a specific stock-keeping unit (SKU) that is available in stock at a Family Dollar distribution center.
+        expr: SKU_INSTOCK_COUNT
+        data_type: NUMBER(13,0)
+        access_modifier: public_access
+        sample_values:
+          - '0'
+          - '6'
+          - '1'
+      - name: SKU_OOS_COUNT
+        synonyms:
+          - out_of_stock_sku_count
+          - sku_out_of_stock_quantity
+          - stockout_sku_count
+          - sku_unavailable_count
+          - oos_sku_total
+        description: The number of times a product was out of stock at a Family Dollar distribution center.
+        expr: SKU_OOS_COUNT
+        data_type: NUMBER(13,0)
+        access_modifier: public_access
+        sample_values:
+          - '4'
+          - '12'
+          - '26'
+      - name: UNITS
+        synonyms:
+          - quantity
+          - amount
+          - count
+          - volume
+          - stock_level
+          - inventory_level
+          - item_count
+          - stock_quantity
+        description: The total quantity of items in stock for each product in the inventory.
+        expr: UNITS
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '557'
+          - '7312'
+          - '667'
+    time_dimensions:
+      - name: WEEK_END_DATE
+        synonyms:
+          - end_of_week_date
+          - week_close_date
+          - last_day_of_week
+          - weekly_cutoff_date
+          - end_date
+          - weekly_end_date
+          - period_end_date
+        description: The date that marks the end of a weekly reporting period for inventory tracking purposes.
+        expr: WEEK_END_DATE
+        data_type: DATE
+        sample_values:
+          - '2023-06-05'
+          - '2023-07-17'
+          - '2023-08-14'
+  - name: INVENTORY_FAMILYDOLLAR_STORE
+    base_table:
+      database: OMEGA
+      schema: PROD
+      table: INVENTORY_FAMILYDOLLAR_STORE
+    dimensions:
+      - name: BRAND_ITEMNUMBER
+        synonyms:
+          - item_number
+          - product_code
+          - sku
+          - product_id
+          - brand_sku
+          - item_code
+          - product_identifier
+        description: Unique identifier for a specific product, combining the brand and item number, used to distinguish between different products within the inventory.
+        expr: BRAND_ITEMNUMBER
+        data_type: VARCHAR(50)
+        sample_values:
+          - '68787822'
+          - '67568477'
+      - name: EG_BRAND
+        expr: '"EG BRAND"'
+        data_type: VARCHAR(2000)
+      - name: EG_CATEGORY
+        synonyms:
+          - product_category
+          - item_category
+          - category_name
+          - product_group
+          - classification
+          - type
+          - product_type
+          - item_type
+        description: Category identifier for the product in the Inventory system, used to group similar products together for reporting and analysis purposes.
+        expr: EG_CATEGORY
+        data_type: VARCHAR(100)
+        sample_values:
+          - '1101757007'
+          - '9110865130'
+          - '1101756989'
+      - name: EG_CLIENT
+        synonyms:
+          - client_name
+          - client_code
+          - client_id
+          - customer_name
+          - customer_code
+          - account_name
+          - account_code
+        description: The brand name of the product in the inventory.
+        expr: EG_CLIENT
+        data_type: VARCHAR(100)
+        sample_values:
+          - DOC BRANDS
+          - SCHOLLS WELLNESS
+          - SUAVE
+      - name: EG_SEGMENT
+        synonyms:
+          - market_segment
+          - product_segment
+          - customer_segment
+          - business_segment
+          - product_category_segment
+          - target_segment
+        description: Segmentation of the product based on the product's characteristics, such as food, non-food, household essentials, personal care, etc., used to categorize and analyze sales and inventory performance across different product groups.
+        expr: EG_SEGMENT
+        data_type: VARCHAR(100)
+      - name: EG_SUBCATEGORY
+        synonyms:
+          - subcategory_name
+          - subcategory_label
+          - subcategory_description
+          - subcategory_code
+          - subcategory_id
+          - subcategory_title
+          - subcategory_classification
+        description: The subcategory of the product within the Electronics department, such as TVs, Tablets, Headphones, etc.
+        expr: EG_SUBCATEGORY
+        data_type: VARCHAR(100)
+      - name: RETAILER
+        synonyms:
+          - store_name
+          - merchant
+          - seller
+          - supplier
+          - vendor
+          - distributor
+          - trader
+          - dealer
+          - shop_name
+        description: The name of the retailer associated with the inventory data, indicating the specific retail chain or store where the inventory is located.
+        expr: RETAILER
+        data_type: VARCHAR(13)
+        sample_values:
+          - FAMILY DOLLAR
+      - name: RETAILER_SKU
+        synonyms:
+          - item_number
+          - product_code
+          - stock_keeping_unit
+          - sku_number
+          - product_sku
+          - item_sku
+          - product_identifier
+        description: Unique identifier for a product as assigned by the retailer.
+        expr: RETAILER_SKU
+        data_type: VARCHAR(2000)
+        sample_values:
+          - '902445'
+          - '903296'
+          - '2003738'
+      - name: RETAILER_SKU_DESCRIPTION
+        synonyms:
+          - item_description
+          - product_info
+          - sku_details
+          - product_name
+          - item_info
+          - product_description
+          - sku_info
+        description: Description of the products stocked in the inventory of the Family Dollar store, including the brand name, product name, and packaging details.
+        expr: RETAILER_SKU_DESCRIPTION
+        data_type: VARCHAR(2000)
+        sample_values:
+          - FW IBUPROFEN 200MG CAPLET 50 CT
+          - CARMEX CMFRT CARE OTML WTRMLN BLST .15OZ
+          - CARMEX DAILY CARE CHERRY SPF 15 .35 OZ
+    facts:
+      - name: AT_STORE_EOP_UNITS
+        expr: '"At Store EoP Units"'
+        data_type: NUMBER(20,2)
+        access_modifier: public_access
+      - name: INSTOCK
+        synonyms:
+          - available_stock
+          - stock_level
+          - stock_quantity
+          - inventory_level
+          - quantity_in_stock
+          - stock_on_hand
+        description: The percentage of time that a product is in stock at a Family Dollar store.
+        expr: INSTOCK
+        data_type: NUMBER(26,8)
+        access_modifier: public_access
+        sample_values:
+          - '0.87500000'
+          - '0.93700000'
+          - '0.46700000'
+      - name: INSTOCK_PCT
+        synonyms:
+          - in_stock_percentage
+          - inventory_percentage
+          - stock_level_percentage
+          - percentage_in_stock
+          - stock_percentage
+          - fill_rate
+          - inventory_fill_rate
+        description: The percentage of time that a product is in stock at a Family Dollar store.
+        expr: INSTOCK_PCT
+        data_type: NUMBER(26,8)
+        access_modifier: public_access
+        sample_values:
+          - '0.87500000'
+          - '0.93700000'
+          - '0.34100000'
+      - name: INTRANSIT_STORE_EOP_UNITS
+        expr: '"InTransit Store EoP Units"'
+        data_type: NUMBER(20,2)
+        access_modifier: public_access
+      - name: NUMBER_OF_STORES
+        synonyms:
+          - store_count
+          - total_stores
+          - number_of_locations
+          - store_total
+          - total_outlets
+          - outlet_count
+        description: The total number of stores in operation for a particular family dollar store chain.
+        expr: NUMBER_OF_STORES
+        data_type: NUMBER(20,2)
+        access_modifier: public_access
+        sample_values:
+          - '2386.00'
+          - '2341.00'
+          - '11.00'
+      - name: SALES
+        synonyms:
+          - revenue
+          - turnover
+          - gross_sales
+          - total_sales
+          - sales_volume
+          - sales_amount
+          - sales_figure
+        description: The total amount of sales generated by each item in the inventory at the Family Dollar Store.
+        expr: SALES
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: STORE_INV_WEEKS_OF_SUPPLY
+        expr: '"Store Inv. Weeks of Supply"'
+        data_type: NUMBER(20,2)
+        access_modifier: public_access
+      - name: UNITS
+        synonyms:
+          - quantity
+          - amount
+          - count
+          - volume
+          - stock_level
+          - inventory_level
+          - item_count
+          - stock_quantity
+        description: The total quantity of items in stock for a particular product in the Family Dollar store.
+        expr: UNITS
+        data_type: FLOAT
+        access_modifier: public_access
+    time_dimensions:
+      - name: WEEK_END_DATE
+        synonyms:
+          - end_of_week_date
+          - week_close_date
+          - weekly_closing_date
+          - end_date
+          - weekly_end_date
+          - period_end_date
+          - cycle_end_date
+          - reporting_date
+        description: The date when the weekly inventory period ends.
+        expr: WEEK_END_DATE
+        data_type: DATE
+        sample_values:
+          - '2023-04-17'
+          - '2022-04-04'
+          - '2023-03-06'
+  - name: INVENTORY_MEIJER
+    base_table:
+      database: OMEGA
+      schema: PROD
+      table: INVENTORY_MEIJER
+    dimensions:
+      - name: BRAND_ITEMNUMBER
+        synonyms:
+          - item_number
+          - product_code
+          - sku_number
+          - product_id
+          - item_code
+          - product_identifier
+        description: Unique identifier for a product, combining the brand and item number to distinguish it from other products in the inventory.
+        expr: BRAND_ITEMNUMBER
+        data_type: VARCHAR(1000)
+        sample_values:
+          - '23055'
+          - '202657'
+          - '80300'
+      - name: EG_BRAND
+        expr: '"EG BRAND"'
+        data_type: VARCHAR(2000)
+      - name: EG_CATEGORY
+        synonyms:
+          - product_category
+          - category_name
+          - item_category
+          - product_group
+          - classification
+          - category_type
+        description: The category of the product as defined by Meijer's internal classification system, which groups similar products together for inventory management and reporting purposes.
+        expr: EG_CATEGORY
+        data_type: VARCHAR(100)
+      - name: EG_CLIENT
+        synonyms:
+          - client_name
+          - client_code
+          - client_id
+          - customer_name
+          - customer_code
+          - account_name
+          - account_code
+        description: The client or customer that the inventory is associated with, indicating the specific business partner or account that the inventory is allocated to.
+        expr: EG_CLIENT
+        data_type: VARCHAR(100)
+        sample_values:
+          - LITTLE BELLIES
+          - PERRIGO
+          - LANSINOH
+      - name: EG_SEGMENT
+        synonyms:
+          - market_segment
+          - product_segment
+          - segment_category
+          - business_segment
+          - product_group
+        description: The EG_SEGMENT column represents the segment or category of the product within the Meijer inventory, which is likely used for grouping and analyzing similar products together.
+        expr: EG_SEGMENT
+        data_type: VARCHAR(100)
+      - name: EG_SUBCATEGORY
+        synonyms:
+          - subcategory_name
+          - subcategory_label
+          - product_subcategory
+          - item_subcategory
+          - subcategory_description
+          - subcategory_code
+        description: A subcategory of the product, providing a more specific classification within the product category.
+        expr: EG_SUBCATEGORY
+        data_type: VARCHAR(100)
+      - name: RETAILER
+        synonyms:
+          - seller
+          - merchant
+          - store
+          - vendor
+          - supplier
+          - distributor
+          - marketer
+          - trader
+        description: The name of the retailer associated with the inventory item, which in this case is always Meijer.
+        expr: RETAILER
+        data_type: VARCHAR(6)
+        sample_values:
+          - MEIJER
+      - name: SKU_DESCRIPTION
+        synonyms:
+          - item_description
+          - product_info
+          - sku_info
+          - product_details
+          - item_info
+          - product_name
+          - sku_name
+        description: Description of the product in the inventory, including brand name, product name, and size or quantity.
+        expr: SKU_DESCRIPTION
+        data_type: VARCHAR(2000)
+        sample_values:
+          - A&D ZINC OXIDE CREAM 4OZ
+          - YARDLEY BAR SOAP OATMEAL ALMOND 2CT
+          - SUAVE BW SWEET VANILLA SILK 18OZ
+    facts:
+      - name: AVG_SALES_QTY_4_WEEKS
+        expr: '"Avg Sales Qty  4 Weeks"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: COUNT_OF_ELIGIBLE_STORES
+        expr: '"Count of Eligible Stores"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: INSTOCK_
+        expr: '"Instock %"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: INV_STORE_WKS_OF_SUPPLY
+        expr: '"Inv: Store Wks of Supply"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: MDQ_
+        expr: '"MDQ%"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: MDQ_QTY
+        expr: '"MDQ Qty"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: RETAILER_SKU
+        synonyms:
+          - item_number
+          - product_code
+          - stock_keeping_unit
+          - sku_id
+          - product_sku
+          - vendor_sku
+          - supplier_sku
+        description: Unique identifier for a product as assigned by the retailer, Meijer.
+        expr: RETAILER_SKU
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '4901905'
+          - '5154109'
+          - '4909593'
+      - name: SALES
+        synonyms:
+          - revenue
+          - turnover
+          - total_sales
+          - sales_volume
+          - sales_amount
+          - sales_figure
+          - sales_total
+        description: The total dollar amount of sales for a specific product or item in the inventory.
+        expr: SALES
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: TOTAL_INVENTORY_ON_ORDER
+        expr: '"Total Inventory + On Order"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: TOTAL_ON_ORDER_QTY
+        expr: '"Total On Order Qty"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: UNITS
+        synonyms:
+          - quantity
+          - amount
+          - count
+          - volume
+          - stock_level
+          - inventory_level
+          - item_count
+          - stock_quantity
+        description: The quantity of the item currently in stock.
+        expr: UNITS
+        data_type: FLOAT
+        access_modifier: public_access
+    time_dimensions:
+      - name: AS_OF_DATE
+        synonyms:
+          - effective_date
+          - snapshot_date
+          - date_as_of
+          - report_date
+          - reference_date
+          - current_date
+          - datestamp
+          - timestamp
+        description: The date and time when the inventory data was last updated or recorded.
+        expr: AS_OF_DATE
+        data_type: TIMESTAMP_NTZ(9)
+        sample_values:
+          - 2024-08-26T18:00:25.958+0000
+          - 2024-06-25T20:48:55.971+0000
+          - 2024-06-25T20:54:40.213+0000
+  - name: INVENTORY_RITEAID
+    base_table:
+      database: OMEGA
+      schema: PROD
+      table: INVENTORY_RITEAID
+    dimensions:
+      - name: BRAND
+        expr: '"Brand"'
+        data_type: VARCHAR(100)
+      - name: BRAND_ITEMNUMBER
+        synonyms:
+          - item_number
+          - product_code
+          - sku
+          - product_id
+          - item_id
+          - stock_number
+          - product_identifier
+        description: Unique identifier for a specific product or item within the Rite Aid inventory system, combining the brand and item number.
+        expr: BRAND_ITEMNUMBER
+        data_type: VARCHAR(50)
+        sample_values:
+          - '50017100'
+          - '10050'
+          - 19265A
+      - name: EG_CATEGORY
+        synonyms:
+          - product_category
+          - category_name
+          - item_group
+          - product_type
+          - classification
+        description: The category of the product as defined by the company's product categorization system, likely used for grouping and analyzing similar products together.
+        expr: EG_CATEGORY
+        data_type: VARCHAR(100)
+      - name: EG_SEGMENT
+        synonyms:
+          - product_segment
+          - market_segment
+          - category_group
+          - product_category
+          - business_segment
+        description: The EG_SEGMENT column represents the Elderly/Geriatric segment classification for Rite Aid's customer base, indicating whether a customer is considered elderly or geriatric based on their age or other demographic factors.
+        expr: EG_SEGMENT
+        data_type: VARCHAR(100)
+      - name: EG_SUBCATEGORY
+        synonyms:
+          - subcategory
+          - sub_group
+          - sub_class
+          - sub_classification
+          - sub_category_name
+          - sub_type
+          - sub_grouping
+          - sub_segment
+        description: A categorization of a product within a broader category, providing a more specific grouping of similar items, such as "Pain Relief" or "Digestive Health" within the category of "Health and Wellness".
+        expr: EG_SUBCATEGORY
+        data_type: VARCHAR(100)
+      - name: ORIGINAL_ITEM
+        expr: '"Original Item"'
+        data_type: VARCHAR(35)
+      - name: RETAILER
+        synonyms:
+          - seller
+          - merchant
+          - store
+          - vendor
+          - supplier
+          - distributor
+          - marketer
+          - trader
+        description: The retailer that owns the inventory, in this case, Rite Aid, a chain of retail pharmacies.
+        expr: RETAILER
+        data_type: VARCHAR(7)
+        sample_values:
+          - RITEAID
+    facts:
+      - name: AVG_UNIT_PRICE
+        expr: '"Avg Unit Price"'
+        data_type: NUMBER(38,4)
+        access_modifier: public_access
+      - name: AVG_UNIT_PRICE_YA
+        expr: '"Avg Unit Price YA"'
+        data_type: NUMBER(38,4)
+        access_modifier: public_access
+      - name: AVG_WEEKLY_UNITS_SOLD
+        expr: '"Avg. Weekly Units Sold"'
+        data_type: NUMBER(38,4)
+        access_modifier: public_access
+      - name: AVG_WEEKLY_UNITS_SOLD_YA
+        expr: '"Avg. Weekly Units Sold YA"'
+        data_type: NUMBER(38,4)
+        access_modifier: public_access
+      - name: COST_OF_UNITS_SOLD
+        expr: '"Cost of Units Sold"'
+        data_type: NUMBER(38,4)
+        access_modifier: public_access
+      - name: COST_OF_UNITS_SOLD_YA
+        expr: '"Cost of Units Sold YA"'
+        data_type: NUMBER(38,4)
+        access_modifier: public_access
+      - name: DC_OH_UNITS
+        expr: '"DC OH Units"'
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+      - name: DC_OH_UNITS_YA
+        expr: '"DC OH Units YA"'
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+      - name: DOLLARS
+        synonyms:
+          - revenue
+          - sales
+          - total_revenue
+          - total_sales
+          - dollar_amount
+          - sales_amount
+          - total_dollars
+          - revenue_generated
+        description: The total sales amount in dollars for each item in the Rite Aid inventory.
+        expr: DOLLARS
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '4896.38'
+          - '59.97'
+          - '3116.76'
+      - name: DOLLARS_YA
+        synonyms:
+          - previous_year_revenue
+          - last_year_dollars
+          - dollars_last_year
+          - ya_revenue
+          - prior_year_sales
+        description: DOLLARS_YA represents the year-over-year dollar sales for a product at Rite Aid stores.
+        expr: DOLLARS_YA
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '1959.3'
+          - '5038.51'
+          - '6274.3'
+      - name: ORIGINAL_ITEM_
+        expr: '"Original Item #"'
+        data_type: NUMBER(10,0)
+        access_modifier: public_access
+      - name: STORE_IN_STOCK_
+        expr: '"Store In-Stock %"'
+        data_type: NUMBER(38,4)
+        access_modifier: public_access
+      - name: STORE_IN_STOCK_YA
+        expr: '"Store In-Stock % YA"'
+        data_type: NUMBER(38,4)
+        access_modifier: public_access
+      - name: STORE_OH_UNITS
+        expr: '"Store OH Units"'
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+      - name: STORE_OH_UNITS_YA
+        expr: '"Store OH Units YA"'
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+      - name: STORE_WEEKS_OF_SUPPLY
+        expr: '"Store Weeks of Supply"'
+        data_type: NUMBER(38,2)
+        access_modifier: public_access
+      - name: STORE_WEEKS_OF_SUPPLY_YA
+        expr: '"Store Weeks of Supply YA"'
+        data_type: NUMBER(38,2)
+        access_modifier: public_access
+      - name: UNITS
+        synonyms:
+          - quantity
+          - amount
+          - volume
+          - count
+          - total_units
+          - unit_count
+          - unit_quantity
+          - unit_volume
+        description: The total quantity of items in stock for a particular product at Rite Aid stores.
+        expr: UNITS
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '86'
+          - '213'
+          - '307'
+      - name: UNITS_YA
+        synonyms:
+          - units_last_year
+          - units_year_ago
+          - previous_year_units
+          - last_year_sales
+          - prior_year_units
+        description: The total number of units sold in the previous year.
+        expr: UNITS_YA
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '224'
+          - '707'
+          - '250'
+      - name: _STORES_SELLING
+        expr: '"# Stores Selling"'
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+      - name: _STORES_SELLING_YA
+        expr: '"# Stores Selling YA"'
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+    time_dimensions:
+      - name: WEEK_END_DATE
+        synonyms:
+          - reporting_date
+          - end_of_week
+          - week_close_date
+          - period_end_date
+          - cycle_end_date
+          - closing_date
+        description: The date when the inventory week ends, marking the conclusion of a weekly inventory cycle.
+        expr: WEEK_END_DATE
+        data_type: DATE
+        sample_values:
+          - '2022-08-22'
+          - '2024-05-06'
+          - '2024-06-24'
+  - name: INVENTORY_TARGET
+    base_table:
+      database: OMEGA
+      schema: PROD
+      table: INVENTORY_TARGET
+    dimensions:
+      - name: EG_BRAND
+        synonyms:
+          - product_brand
+          - manufacturer
+          - brand_name
+          - product_maker
+          - supplier_name
+          - vendor_name
+        description: The brand name of the product in the inventory.
+        expr: EG_BRAND
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - GOLI
+          - DENTEMP
+          - Alaffia
+      - name: EG_CATEGORY
+        synonyms:
+          - product_category
+          - item_group
+          - category_name
+          - product_type
+          - classification
+          - group_name
+          - product_class
+        description: The category of the product or item in the inventory, which groups similar products or items together for analysis and reporting purposes.
+        expr: EG_CATEGORY
+        data_type: VARCHAR(100)
+      - name: EG_CLIENT
+        synonyms:
+          - client_code
+          - client_id
+          - client_name
+          - customer_code
+          - customer_id
+          - customer_name
+          - eg_customer
+          - external_client
+          - external_customer
+        description: The name of the client or company that the inventory is targeted for.
+        expr: EG_CLIENT
+        data_type: VARCHAR(100)
+        sample_values:
+          - Alaffia
+          - Suave Brands Company
+          - FR!SKA
+      - name: EG_ITEMNUMBER
+        synonyms:
+          - item_id
+          - product_code
+          - sku
+          - product_number
+          - item_code
+          - stock_number
+          - product_identifier
+        description: Unique identifier for an item in the inventory.
+        expr: EG_ITEMNUMBER
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - '68844881'
+          - '204671'
+          - '68711703'
+      - name: EG_SEGMENT
+        synonyms:
+          - product_segment
+          - market_segment
+          - customer_segment
+          - business_segment
+          - product_category_group
+        description: Represents the segment of the enterprise to which the inventory target belongs, allowing for the categorization and management of inventory targets by specific business segments.
+        expr: EG_SEGMENT
+        data_type: VARCHAR(100)
+      - name: EG_SUBCATEGORY
+        synonyms:
+          - subcategory_name
+          - subcategory_label
+          - subcategory_description
+          - subcategory_code
+          - subcategory_id
+          - subcategory_type
+          - subcategory_classification
+        description: A categorization of products into a more specific subgroup within a category, providing a more detailed classification of inventory items.
+        expr: EG_SUBCATEGORY
+        data_type: VARCHAR(100)
+      - name: RETAILER
+        synonyms:
+          - seller
+          - merchant
+          - store
+          - vendor
+          - supplier
+          - distributor
+          - trader
+          - dealer
+        description: The retailer for which the inventory target is being set.
+        expr: RETAILER
+        data_type: VARCHAR(6)
+        sample_values:
+          - TARGET
+      - name: RETAILER_ITEMDESCRIPTION
+        synonyms:
+          - item_description
+          - product_info
+          - product_details
+          - item_info
+          - product_name
+          - item_name
+          - product_description
+          - item_text
+        description: Description of products stocked in the inventory.
+        expr: RETAILER_ITEMDESCRIPTION
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Suave Powder Anti-Staining 48-Hour Antiperspirant & Deodorant Stick - 2.6oz/2pk
+          - Opti-Nail Fungal Nail Repair Pen - 0.125fl oz
+          - Dr. Scholl's Pain Relief Orthotics Women's Extra Support Insole - Size 6-11
+      - name: RETAILER_ITEMNUMBER
+        synonyms:
+          - item_number
+          - product_code
+          - sku
+          - stock_number
+          - product_id
+          - item_id
+          - article_number
+          - product_identifier
+        description: Unique identifier for a specific item sold by a retailer.
+        expr: RETAILER_ITEMNUMBER
+        data_type: VARCHAR(2000)
+        sample_values:
+          - 063-02-1056
+          - 094-01-0345
+          - 037-13-1338
+    facts:
+      - name: BEGINNING_ON_HAND_A
+        synonyms:
+          - initial_inventory_value
+          - opening_stock_amount
+          - starting_on_hand_quantity
+          - beginning_stock_level
+          - initial_on_hand_amount
+        description: The total quantity of a specific product or material that is available in stock at the beginning of a specific period, typically measured in units or dollars.
+        expr: BEGINNING_ON_HAND_A
+        data_type: NUMBER(38,2)
+        access_modifier: public_access
+        sample_values:
+          - '777507.59'
+          - '1324179.94'
+          - '765764.07'
+      - name: BEGINNING_ON_HAND_Q
+        synonyms:
+          - initial_inventory_quantity
+          - opening_stock_quantity
+          - starting_quantity_on_hand
+          - beginning_stock_level
+          - initial_quantity_in_stock
+        description: The quantity of inventory on hand at the beginning of the period.
+        expr: BEGINNING_ON_HAND_Q
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '221'
+          - '101552'
+          - '1'
+      - name: BEGINNING_ON_PURCHASE_A
+        synonyms:
+          - initial_purchase_amount
+          - opening_purchase_value
+          - starting_purchase_quantity_value
+          - beginning_purchase_cost
+          - initial_procurement_amount
+        description: The total value of inventory that was on purchase order at the beginning of the period.
+        expr: BEGINNING_ON_PURCHASE_A
+        data_type: NUMBER(38,2)
+        access_modifier: public_access
+        sample_values:
+          - '218135.28'
+          - '750099.60'
+          - '72315.08'
+      - name: BEGINNING_ON_PURCHASE_Q
+        synonyms:
+          - initial_purchase_quantity
+          - opening_purchase_quantity
+          - starting_purchase_quantity
+          - beginning_purchase_qty
+          - initial_purchase_qty
+        description: The quantity of inventory that was on purchase order at the beginning of the period.
+        expr: BEGINNING_ON_PURCHASE_Q
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '126'
+          - '10884'
+          - '43408'
+      - name: BEGINNING_ON_TRANSFER_A
+        synonyms:
+          - initial_transfer_amount
+          - opening_transfer_value
+          - starting_transfer_quantity_value
+          - beginning_transfer_cost
+          - initial_transfer_cost_amount
+        description: The total value of inventory that was in transit at the beginning of the period, awaiting transfer to the current location.
+        expr: BEGINNING_ON_TRANSFER_A
+        data_type: NUMBER(38,2)
+        access_modifier: public_access
+        sample_values:
+          - '216593.62'
+          - '28665.20'
+          - '206775.99'
+      - name: BEGINNING_ON_TRANSFER_Q
+        synonyms:
+          - initial_transfer_quantity
+          - opening_transfer_quantity
+          - starting_transfer_quantity
+          - beginning_transfer_qty
+          - initial_transfer_qty
+        description: The quantity of inventory that is currently in transit to the warehouse or store, and has not yet been received, at the beginning of the reporting period.
+        expr: BEGINNING_ON_TRANSFER_Q
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '433'
+          - '723'
+          - '5333'
+      - name: ENDING_ON_HAND_A
+        synonyms:
+          - final_inventory_level
+          - closing_inventory_amount
+          - end_of_period_stock
+          - stock_at_end_of_period
+          - final_stock_level
+          - ending_stock_amount
+          - closing_stock_amount
+        description: The total quantity of a product that is expected to be in stock at the end of a specific period, typically measured in units or dollars.
+        expr: ENDING_ON_HAND_A
+        data_type: NUMBER(38,2)
+        access_modifier: public_access
+        sample_values:
+          - '483523.29'
+          - '1067442.85'
+          - '666960.54'
+      - name: ENDING_ON_HAND_Q
+        synonyms:
+          - final_inventory_quantity
+          - closing_stock_quantity
+          - end_of_period_stock
+          - stock_at_end_of_period
+          - final_on_hand_quantity
+          - closing_on_hand_quantity
+        description: The quantity of inventory on hand at the end of a specific period, typically used to measure the remaining stock after accounting for sales, returns, and other inventory movements.
+        expr: ENDING_ON_HAND_Q
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '58826'
+          - '16561'
+          - '29'
+      - name: ENDING_ON_PURCHASE_A
+        synonyms:
+          - final_purchase_amount
+          - total_purchase_value
+          - purchase_amount_at_end
+          - ending_purchase_value
+          - closing_purchase_amount
+        description: The total amount of inventory that is expected to be on purchase orders at the end of a specific period.
+        expr: ENDING_ON_PURCHASE_A
+        data_type: NUMBER(38,2)
+        access_modifier: public_access
+        sample_values:
+          - '187171.80'
+          - '2157.84'
+          - '14804.40'
+      - name: ENDING_ON_PURCHASE_Q
+        synonyms:
+          - final_purchase_quantity
+          - purchase_quantity_end
+          - ending_purchase_qty
+          - end_of_purchase_quantity
+          - final_qty_purchased
+        description: The total quantity of inventory that is expected to be on hand at the end of a specific period, assuming all planned purchases are received.
+        expr: ENDING_ON_PURCHASE_Q
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '76248'
+          - '95328'
+          - '32568'
+      - name: ENDING_ON_TRANSFER_A
+        synonyms:
+          - final_transfer_amount
+          - transfer_amount_end
+          - end_of_transfer_value
+          - closing_transfer_balance
+          - final_transfer_quantity_value
+        description: The total value of inventory that was transferred out of the warehouse or facility at the end of the period.
+        expr: ENDING_ON_TRANSFER_A
+        data_type: NUMBER(38,2)
+        access_modifier: public_access
+        sample_values:
+          - '123494.10'
+          - '553.77'
+          - '278.28'
+      - name: ENDING_ON_TRANSFER_Q
+        synonyms:
+          - final_transfer_quantity
+          - transfer_quantity_end
+          - end_of_transfer_quantity
+          - quantity_transferred_out
+          - closing_transfer_quantity
+        description: The quantity of inventory that is currently in transit to the warehouse or store, awaiting receipt and putaway.
+        expr: ENDING_ON_TRANSFER_Q
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '6180'
+          - '9983'
+          - '120'
+      - name: INSTOCK_PERCENTAGE
+        synonyms:
+          - in_stock_rate
+          - stock_availability_percentage
+          - inventory_fill_rate
+          - stock_level_percentage
+          - percentage_in_stock
+        description: The percentage of inventory that is currently in stock.
+        expr: INSTOCK_PERCENTAGE
+        data_type: NUMBER(19,6)
+        access_modifier: public_access
+        sample_values:
+          - '0.000000'
+          - '1.000000'
+          - '0.500000'
+      - name: INSTOCK_STORE_CT
+        synonyms:
+          - in_stock_stores
+          - stores_with_stock
+          - stock_holding_stores
+          - stores_with_inventory
+          - available_store_count
+        description: The number of stores that currently have the item in stock.
+        expr: INSTOCK_STORE_CT
+        data_type: NUMBER(13,0)
+        access_modifier: public_access
+        sample_values:
+          - '2'
+          - '0'
+          - '1'
+      - name: OUT_OF_STOCK_STORE_CT
+        synonyms:
+          - stores_out_of_stock
+          - out_of_stock_locations
+          - stock_out_count
+          - stores_without_stock
+          - out_of_stock_count
+          - stock_unavailable_stores
+        description: The number of stores that are currently out of stock for a particular inventory item.
+        expr: OUT_OF_STOCK_STORE_CT
+        data_type: NUMBER(13,0)
+        access_modifier: public_access
+        sample_values:
+          - '2'
+          - '1'
+          - '0'
+      - name: SALES
+        synonyms:
+          - revenue
+          - turnover
+          - total_sales
+          - gross_sales
+          - sales_volume
+          - sales_amount
+          - sales_figure
+          - sales_total
+        description: The total dollar amount of sales for a specific product or product group.
+        expr: SALES
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '627'
+          - '42620'
+          - '10251'
+      - name: UNITS
+        synonyms:
+          - quantity
+          - amount
+          - count
+          - volume
+          - total
+          - stock_level
+          - inventory_level
+          - item_count
+          - product_quantity
+        description: The total quantity of items or units of a product that are being targeted to be held in inventory.
+        expr: UNITS
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '18449'
+          - '2394'
+          - '3364'
+    time_dimensions:
+      - name: BUSINESS_D
+        synonyms:
+          - business_date
+          - transaction_date
+          - date_key
+          - calendar_date
+          - reporting_date
+          - fiscal_date
+        description: Date dimension representing the business day, used to track inventory targets over time.
+        expr: BUSINESS_D
+        data_type: DATE
+        sample_values:
+          - '2024-08-12'
+          - '2024-07-22'
+          - '2024-07-29'
+  - name: INVENTORY_WALGREENS
+    base_table:
+      database: OMEGA
+      schema: PROD
+      table: INVENTORY_WALGREENS
+    dimensions:
+      - name: BRAND_ITEMNUMBER
+        synonyms:
+          - product_code
+          - item_number
+          - product_id
+          - sku
+          - stock_number
+          - product_identifier
+        description: Unique identifier for a specific product, combining the brand and item number, used to distinguish between different products in the inventory.
+        expr: BRAND_ITEMNUMBER
+        data_type: VARCHAR(1000)
+        sample_values:
+          - '50008'
+          - '282207'
+      - name: EG_BRAND
+        synonyms:
+          - product_brand
+          - manufacturer
+          - brand_name
+          - product_maker
+          - supplier_name
+        description: The brand name of the product in the inventory.
+        expr: EG_BRAND
+        data_type: VARCHAR(1000)
+        sample_values:
+          - SIMILASAN OTHER
+          - ARBOL VERDE
+          - HYDRALYTE
+      - name: EG_CATEGORY
+        synonyms:
+          - product_category
+          - category_name
+          - item_category
+          - product_group
+          - classification
+          - type
+          - product_type
+          - category_description
+        description: Category identifier for the product in the Walgreens inventory system, likely used to group similar products together for reporting and analysis purposes.
+        expr: EG_CATEGORY
+        data_type: VARCHAR(1000)
+        sample_values:
+          - '9110835024'
+          - '9110830013'
+          - '4902204565'
+      - name: EG_CLIENT
+        synonyms:
+          - client_name
+          - client_code
+          - customer_name
+          - customer_code
+          - client_id
+          - account_name
+          - account_code
+          - customer_id
+        description: The EG_CLIENT column represents the external global client or partner company that the inventory item is associated with, indicating the manufacturer or supplier of the product.
+        expr: EG_CLIENT
+        data_type: VARCHAR(1000)
+        sample_values:
+          - SIMILASAN
+          - NUTRAWISE
+          - FOCUS
+      - name: EG_SEGMENT
+        synonyms:
+          - market_segment
+          - product_segment
+          - customer_segment
+          - business_segment
+          - product_category
+          - market_category
+          - segment_type
+          - product_group
+        description: The EG_SEGMENT column represents the Elderly/Geriatric segment, which categorizes customers based on their age and health status, allowing for targeted marketing and product placement strategies to cater to the needs of this demographic.
+        expr: EG_SEGMENT
+        data_type: VARCHAR(1000)
+      - name: EG_SUBCATEGORY
+        synonyms:
+          - subcategory_name
+          - subcategory_label
+          - subcategory_type
+          - subcategory_code
+          - subcategory_description
+          - subcategory_classification
+        description: The subcategory of the product within the Electronics department, such as Headphones, Tablets, or Smartwatches.
+        expr: EG_SUBCATEGORY
+        data_type: VARCHAR(1000)
+      - name: FILENAME
+        synonyms:
+          - file_name
+          - document_name
+          - data_source
+          - source_file
+          - file_reference
+          - data_file
+          - input_file
+          - upload_file
+        description: The name of the file from which the inventory data was sourced.
+        expr: FILENAME
+        data_type: VARCHAR(1000)
+        sample_values:
+          - SSIS PROJECT.xlsx
+      - name: RETAILER
+        synonyms:
+          - seller
+          - merchant
+          - store
+          - vendor
+          - supplier
+          - distributor
+          - trader
+          - dealer
+          - marketer
+        description: The name of the retailer associated with the inventory data, which in this case is always Walgreens.
+        expr: RETAILER
+        data_type: VARCHAR(1000)
+        sample_values:
+          - WALGREENS
+      - name: RETAILER_ITEMDESCRIPTION
+        synonyms:
+          - item_description
+          - product_info
+          - product_details
+          - item_info
+          - product_name
+          - item_name
+          - product_label
+          - item_label
+        description: Description of the product or item being sold by the retailer.
+        expr: RETAILER_ITEMDESCRIPTION
+        data_type: VARCHAR(1000)
+        sample_values:
+          - WEB.Disposable Nursing Pads
+          - NEW SKIN SENSITIVE 0.3OZ
+          - HYDRALYTE ORAL ORNG SINGLE 8.45OZ
+      - name: RETAILER_ITEMNUMBER
+        synonyms:
+          - item_number
+          - product_code
+          - sku
+          - stock_number
+          - product_id
+          - item_id
+          - vendor_item_number
+          - supplier_item_number
+        description: Unique identifier for a product sold by Walgreens, assigned by the retailer.
+        expr: RETAILER_ITEMNUMBER
+        data_type: VARCHAR(1000)
+        sample_values:
+          - '172325'
+          - '100117'
+          - '219573'
+      - name: RETAILER_UPC
+        synonyms:
+          - universal_product_code
+          - upc_code
+          - product_barcode
+          - item_upc
+          - barcode_number
+          - product_id_code
+        description: Unique identifier for a product as assigned by the retailer, typically a Universal Product Code (UPC) used to track inventory and sales of a specific item at Walgreens stores.
+        expr: RETAILER_UPC
+        data_type: VARCHAR(1000)
+        sample_values:
+          - '34601709530'
+          - '89825400200'
+          - '79473104208'
+      - name: SHEETNAME
+        synonyms:
+          - spreadsheet_name
+          - worksheet_name
+          - tab_name
+          - file_sheet
+          - document_name
+          - page_name
+          - report_name
+        description: The name of the spreadsheet or worksheet where the inventory data was exported from.
+        expr: SHEETNAME
+        data_type: VARCHAR(1000)
+        sample_values:
+          - Data Export
+      - name: WAG_OPS_STUDY
+        expr: '"WAG OPS STUDY"'
+        data_type: VARCHAR(1000)
+    facts:
+      - name: DC_IN_STOCK_RATE
+        expr: '"DC In Stock Rate"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: DC_ON_HAND_VOLUME_UNITS
+        expr: '"DC On Hand Volume Units"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: STORE_IN_STOCK_RATE
+        expr: '"Store In Stock Rate"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: STORE_ON_HAND_VOLUME_UNITS
+        expr: '"Store On Hand Volume Units"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: SUBSCRIBED_STORE_COUNT
+        expr: '"Subscribed Store Count"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: SUBSCRIBED_STORE_IN_STOCK_RATE
+        expr: '"Subscribed Store In Stock Rate"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: TOTAL_ON_HAND_VOLUME_UNITS
+        expr: '"Total On Hand Volume Units"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: TOTAL_SALES_AMOUNT_EX_PHARMACY
+        expr: '"Total Sales Amount Ex.Pharmacy"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: TOTAL_SALES_VOLUME_UNITS_EX_PHARMACY
+        expr: '"Total Sales Volume Units Ex.Pharmacy"'
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: ZERO_ON_HAND_STORE_COUNT
+        expr: '"Zero On Hand Store Count"'
+        data_type: FLOAT
+        access_modifier: public_access
+    time_dimensions:
+      - name: BEGIN_DATE
+        synonyms:
+          - start_date
+          - initial_date
+          - commencement_date
+          - effective_date
+          - begin_timestamp
+          - initial_timestamp
+          - start_timestamp
+        description: The date and time when the inventory item was first introduced or became available at Walgreens.
+        expr: BEGIN_DATE
+        data_type: TIMESTAMP_NTZ(9)
+        sample_values:
+          - 2023-11-19T00:00:00.000+0000
+          - 2024-06-16T00:00:00.000+0000
+          - 2024-05-12T00:00:00.000+0000
+      - name: END_DATE
+        synonyms:
+          - expiration_date
+          - termination_date
+          - closing_date
+          - end_timestamp
+          - completion_date
+          - finish_date
+          - last_date
+          - final_date
+        description: Date when the inventory record is no longer valid or the last date of the inventory period.
+        expr: END_DATE
+        data_type: TIMESTAMP_NTZ(9)
+        sample_values:
+          - 2024-02-03T00:00:00.000+0000
+          - 2024-01-27T00:00:00.000+0000
+          - 2024-01-20T00:00:00.000+0000
+      - name: LOADDATE
+        synonyms:
+          - load_timestamp
+          - load_time
+          - data_load_date
+          - data_load_time
+          - data_load_timestamp
+          - import_date
+          - import_time
+          - import_timestamp
+          - data_insertion_date
+          - data_insertion_time
+        description: Date and time when the inventory data was loaded into the system.
+        expr: LOADDATE
+        data_type: TIMESTAMP_NTZ(9)
+        sample_values:
+          - 2024-08-06T13:01:44.906+0000
+          - 2024-08-02T12:42:03.487+0000
+          - 2024-08-27T13:02:00.637+0000
+  - name: POS_FINAL
+    base_table:
+      database: OMEGA
+      schema: PROD
+      table: POS_FINAL
+    dimensions:
+      - name: CHANNEL
+        synonyms:
+          - medium
+          - platform
+          - outlet
+          - medium_of_distribution
+          - sales_channel
+          - distribution_channel
+          - marketing_channel
+        description: The sales channel through which the product was sold, either online (EComm) or in a physical store (Brick & Mortar).
+        expr: CHANNEL
+        data_type: VARCHAR(14)
+        sample_values:
+          - EComm
+          - Brick & Mortar
+      - name: EG_BRAND
+        synonyms:
+          - product_brand
+          - manufacturer
+          - brand_name
+          - product_maker
+          - supplier_name
+          - vendor_name
+        description: The brand name of the product sold in the point of sale transaction, indicating the specific brand such as Suave, Caress, or Ponds.
+        expr: EG_BRAND
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - SUAVE
+          - CARESS
+          - PONDS
+      - name: EG_BRAND_ITEMNUMBER
+        synonyms:
+          - item_number
+          - product_code
+          - sku
+          - product_id
+          - article_number
+          - stock_number
+        description: Unique identifier for a specific product item within a brand.
+        expr: EG_BRAND_ITEMNUMBER
+        data_type: VARCHAR(50)
+        sample_values:
+          - '68874597'
+          - PRD000285
+      - name: EG_BRAND_LOGO
+        synonyms:
+          - brand_image
+          - brand_icon
+          - logo_url
+          - brand_picture
+          - brand_thumbnail
+          - logo_image
+          - brand_visual_identity
+        description: The URL of the logo image for each brand.
+        expr: EG_BRAND_LOGO
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - https://egomega.blob.core.windows.net/logos/BRANDS/SUAVE%20BRANDS/suave%20brands%20round%20logo@2x.png
+          - https://egomega.blob.core.windows.net/logos/BRANDS/FREEMAN/freeman%20round%20logo.png
+      - name: EG_CATEGORY
+        synonyms:
+          - product_category
+          - item_category
+          - category_name
+          - product_type
+          - classification
+          - group_name
+          - product_group
+          - item_type
+        description: Category of the product being purchased, such as household items, cough and cold medications, or other miscellaneous products.
+        expr: EG_CATEGORY
+        data_type: VARCHAR(100)
+        sample_values:
+          - HOUSEHOLD
+          - COUGH COLD
+          - OTHER
+      - name: EG_CLIENT
+        synonyms:
+          - client_name
+          - client_code
+          - client_id
+          - customer_name
+          - customer_code
+          - account_name
+          - account_code
+          - partner_name
+          - partner_code
+        description: The EG_CLIENT column represents the name of the external general client or customer that the sale was made to, indicating the specific business or entity that purchased the product or service.
+        expr: EG_CLIENT
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - CARMA
+          - SUAVE
+          - ELIDA BEAUTY
+      - name: EG_DESCRIPTION
+        synonyms:
+          - product_description
+          - item_description
+          - product_info
+          - item_info
+          - product_details
+          - item_details
+          - description
+          - product_text
+          - item_text
+        description: This column contains a detailed description of the product being sold, including its name, flavor, size, and packaging details.
+        expr: EG_DESCRIPTION
+        data_type: VARCHAR(1000)
+        sample_values:
+          - CHAPSTICK FRUIT PUNCH 12CT BC .15OZ (DG)
+          - Men's 6 BL Disp Razor 3ct
+      - name: EG_EACH_UPC
+        synonyms:
+          - upc_values
+          - each_upc_codes
+          - upc_per_item
+          - item_upc_numbers
+          - upc_list
+          - upc_values_per_item
+        description: Unique identifier for each product, represented by a Universal Product Code (UPC).
+        expr: EG_EACH_UPC
+        data_type: VARCHAR(2000)
+        sample_values:
+          - '305736553968'
+          - '400029158582'
+      - name: EG_STATUS
+        synonyms:
+          - status_of_eg
+          - eg_condition
+          - eg_state
+          - eg_situation
+          - eg_position
+        description: Employee Group Status, indicating whether an employee is Inactive (I) or Active (A).
+        expr: EG_STATUS
+        data_type: VARCHAR(50)
+        sample_values:
+          - I
+          - A
+      - name: EG_SUBCATEGORY
+        synonyms:
+          - subcategory_name
+          - subcategory_label
+          - subcategory_description
+          - subcategory_code
+          - subcategory_type
+          - subcategory_classification
+          - subcategory_group
+          - subcategory_identifier
+        description: The EG_SUBCATEGORY column represents the subcategory of the product, which is a more specific classification within the product category, such as baby care, foot care, or other miscellaneous products.
+        expr: EG_SUBCATEGORY
+        data_type: VARCHAR(100)
+        sample_values:
+          - BABY OINTMENTS/CREAMS
+          - OTHER
+          - FOOT CARE PRODUCTS
+      - name: RETAILER
+        synonyms:
+          - store
+          - merchant
+          - seller
+          - vendor
+          - supplier
+          - distributor
+          - outlet
+          - shop
+          - marketplace
+        description: The name of the retailer where the sale was made.
+        expr: RETAILER
+        data_type: VARCHAR(14)
+        sample_values:
+          - FAMILY DOLLAR
+          - WALMART
+          - DOLLAR GENERAL
+      - name: RETAILER_BRAND
+        synonyms:
+          - store_brand
+          - merchant_brand
+          - vendor_brand
+          - seller_brand
+          - brand_name
+          - retailer_name
+        description: The brand name of the retailer that sold the product.
+        expr: RETAILER_BRAND
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - SUAVE
+          - CHAPSTICK
+      - name: RETAILER_CLIENT
+        synonyms:
+          - retailer_name
+          - client_name
+          - retailer_partner
+          - client_partner
+          - retail_client_name
+          - client_retailer_name
+        description: The name of the retailer client that the sale was made to, indicating the specific business partner or store location that the transaction was associated with.
+        expr: RETAILER_CLIENT
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - SUAVE
+          - LORNAMEAD
+          - ARCADIA
+      - name: RETAILER_ITEM_DESCRIPTION
+        synonyms:
+          - item_description
+          - product_info
+          - product_details
+          - item_info
+          - product_summary
+          - item_summary
+          - retail_item_info
+          - retail_product_description
+        description: Description of products sold at the point of sale, including brand name, product name, flavor, size, and packaging details.
+        expr: RETAILER_ITEM_DESCRIPTION
+        data_type: VARCHAR(2000)
+        sample_values:
+          - CARMEX DAILY CARE MULT FLAV CHER, STRAW, WINT, SPF 15 STICK 0.45 OZ 3 PK
+          - CHAPSTICK L/B CANDYCANE 3
+          - REXALL EYE WASH 4 OZ
+      - name: RETAILER_ITEM_NUMBER
+        synonyms:
+          - item_number
+          - product_code
+          - sku
+          - stock_number
+          - product_id
+          - item_id
+          - retailer_sku
+        description: Unique identifier assigned by the retailer to a specific item in their inventory.
+        expr: RETAILER_ITEM_NUMBER
+        data_type: VARCHAR(100)
+        sample_values:
+          - '17293802'
+          - '21368302'
+          - '37752101'
+      - name: RETAILER_LOGO_URL
+        synonyms:
+          - retailer_image_url
+          - retailer_icon_url
+          - retailer_brand_image
+          - retailer_picture_url
+          - retailer_visual_identity_url
+        description: The URL of the logo image for the retailer associated with the point of sale transaction.
+        expr: RETAILER_LOGO_URL
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - https://egomega.blob.core.windows.net/logos/RETAILERS/FAMILY DOLLAR/family%20dollar%20circle%20logo_2%402x.png
+          - https://egomega.blob.core.windows.net/logos/RETAILERS/WALMART/walmart%20circle%20logo%402x.png
+          - https://egomega.blob.core.windows.net/logos/RETAILERS/DOLLAR GENERAL/dollar%20general%20circle%20logo.png
+      - name: RETAILER_STATUS
+        synonyms:
+          - retailer_state
+          - retailer_condition
+          - vendor_status
+          - supplier_status
+          - merchant_status
+          - store_status
+          - seller_status
+        description: The current status of the retailer, where '1' indicates active and 'I' indicates inactive.
+        expr: RETAILER_STATUS
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - '1'
+          - I
+      - name: RETAILER_UPC
+        synonyms:
+          - universal_product_code
+          - retailer_barcode
+          - product_id
+          - item_code
+          - stock_code
+          - sku
+          - retailer_sku
+        description: Unique identifier for the product as assigned by the retailer, typically a Universal Product Code (UPC) that distinguishes the item from other products sold by the retailer.
+        expr: RETAILER_UPC
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - '310119020036'
+          - '310119303733'
+          - '41840829895'
+    facts:
+      - name: DOLLARS
+        synonyms:
+          - revenue
+          - sales
+          - income
+          - earnings
+          - profit
+          - total_value
+          - amount_spent
+          - expenditure
+          - financial_value
+        description: The total amount of sales revenue generated, represented in US dollars.
+        expr: DOLLARS
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '0.01'
+          - '18588.83'
+          - '31101.06'
+      - name: DOLLARS_YA
+        synonyms:
+          - previous_year_dollars
+          - dollars_last_year
+          - ya_dollars
+          - dollars_yoy
+          - prior_year_dollars
+        description: DOLLARS_YA represents the total sales amount in dollars for the year ago period, indicating the revenue generated by the business during the same period in the previous year.
+        expr: DOLLARS_YA
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '5024.24'
+          - '6036.42'
+          - '38.75'
+      - name: UNITS
+        synonyms:
+          - quantity
+          - amount
+          - volume
+          - count
+          - number
+          - items
+          - inventory
+          - stock
+          - goods
+          - merchandise
+        description: The total quantity of items sold.
+        expr: UNITS
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '1439'
+          - '2174'
+          - '1301'
+      - name: UNITS_YA
+        synonyms:
+          - units_last_year
+          - units_year_ago
+          - previous_year_units
+          - last_year_unit_sales
+          - units_prior_year
+        description: Units sold in the year ago period.
+        expr: UNITS_YA
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '1160'
+          - '1217'
+          - '1307'
+      - name: WEEK_NUMBER
+        synonyms:
+          - week_num
+          - week_no
+          - week_id
+          - calendar_week
+          - week_index
+          - week_count
+        description: The week number of the year in which a sales transaction occurred, allowing for analysis of sales trends and patterns over time.
+        expr: WEEK_NUMBER
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '43'
+          - '93'
+          - '82'
+    time_dimensions:
+      - name: BUILDDATE
+        synonyms:
+          - build_timestamp
+          - creation_date
+          - deployment_date
+          - release_date
+          - build_time
+          - compilation_date
+        description: Date and time when the data was last built or updated in the POS (Point of Sale) system.
+        expr: BUILDDATE
+        data_type: TIMESTAMP_LTZ(9)
+        sample_values:
+          - 2025-07-15T15:00:12.065+0000
+      - name: LOADDATE
+        synonyms:
+          - load_timestamp
+          - data_load_date
+          - load_time
+          - data_insert_date
+          - data_load_timestamp
+          - import_date
+          - data_upload_date
+          - timestamp_loaded
+        description: Date and time when the point of sale data was loaded into the system.
+        expr: LOADDATE
+        data_type: TIMESTAMP_LTZ(9)
+        sample_values:
+          - 2025-07-15T14:00:36.280+0000
+          - 2025-04-21T16:34:30.732+0000
+          - 2025-06-17T20:32:13.529+0000
+      - name: RETAILER_WEEK_END_DATE
+        synonyms:
+          - retailer_reporting_week_end
+          - retailer_week_closing_date
+          - retailer_period_end_date
+          - retailer_cycle_end_date
+          - retailer_sales_week_end
+        description: The date on which the retailer's weekly sales period ends.
+        expr: RETAILER_WEEK_END_DATE
+        data_type: DATE
+        sample_values:
+          - '2025-02-07'
+          - '2023-09-01'
+          - '2024-06-21'
+      - name: WEEK_END_DATE
+        synonyms:
+          - end_of_week_date
+          - last_day_of_week
+          - weekly_closing_date
+          - end_date
+          - weekly_end_date
+          - closing_date
+          - week_close_date
+        description: The date on which the week ended, typically a Sunday, used to track and analyze sales performance on a weekly basis.
+        expr: WEEK_END_DATE
+        data_type: DATE
+        sample_values:
+          - '2024-02-12'
+          - '2025-03-03'
+          - '2024-12-02'
+  - name: POS_LOGISTICS
+    base_table:
+      database: OMEGA
+      schema: PROD
+      table: POS_LOGISTICS
+    dimensions:
+      - name: ACTIVE
+        expr: '"Active"'
+        data_type: VARCHAR(16777216)
+      - name: CHANNEL
+        synonyms:
+          - medium
+          - platform
+          - outlet
+          - sales_channel
+          - distribution_channel
+          - marketing_channel
+          - sales_medium
+          - communication_channel
+        description: The sales channel through which the product was sold, either in a physical store (Brick & Mortar) or through the company's e-commerce platform (EComm).
+        expr: CHANNEL
+        data_type: VARCHAR(14)
+        sample_values:
+          - Brick & Mortar
+          - EComm
+      - name: EG_BRAND
+        synonyms:
+          - brand_name
+          - manufacturer
+          - product_brand
+          - supplier
+          - vendor
+          - company_name
+          - product_maker
+        description: The brand name of the product being sold.
+        expr: EG_BRAND
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - LITTLE BELLIES
+          - SUAVE BODY CLEANSING- MEN'S-BODY CLEANSING- MEN'S
+          - LANSINOH
+      - name: EG_BRAND_ITEMNUMBER
+        synonyms:
+          - item_number
+          - product_code
+          - sku
+          - product_id
+          - article_number
+          - stock_number
+        description: Unique identifier for a specific product or item within a brand, combining the brand code with the item number.
+        expr: EG_BRAND_ITEMNUMBER
+        data_type: VARCHAR(50)
+        sample_values:
+          - 510100A
+          - '87045129'
+          - F19004
+      - name: EG_CATEGORY
+        synonyms:
+          - product_category
+          - item_category
+          - category_name
+          - product_group
+          - classification
+          - type
+          - product_type
+          - item_type
+        description: Category identifier for the product or service being shipped, used to group and track logistics operations by product category.
+        expr: EG_CATEGORY
+        data_type: VARCHAR(100)
+        sample_values:
+          - '5307617552'
+          - '5307620570'
+          - '9110832025'
+      - name: EG_CLIENT
+        synonyms:
+          - customer
+          - client_name
+          - client_code
+          - account_name
+          - account_holder
+          - client_id
+          - client_reference
+        description: The name of the client or customer that the logistics operation is being performed for.
+        expr: EG_CLIENT
+        data_type: VARCHAR(75)
+        sample_values:
+          - ARCADIA CONSUMER HC
+          - BRIDGES CONSUMER HEALTH
+          - PHARMACARE
+      - name: EG_DESCRIPTION
+        synonyms:
+          - product_description
+          - item_info
+          - product_info
+          - item_details
+          - product_details
+          - goods_description
+          - item_summary
+        description: Description of products or items being shipped or stored in the logistics system.
+        expr: EG_DESCRIPTION
+        data_type: VARCHAR(1000)
+        sample_values:
+          - Dr. Scholl's Stylish Step Ball of Foot High Heel for Women, 1 Pair
+          - BETADINE SOLUTION
+          - DS PAIN BALL OF FOOT
+      - name: EG_EACH_UPC
+        synonyms:
+          - upc_code
+          - universal_product_code
+          - product_id
+          - item_upc
+          - each_upc_code
+          - product_identifier
+        description: Unique Product Code (UPC) for each item in the logistics data, representing a specific product or item being tracked.
+        expr: EG_EACH_UPC
+        data_type: VARCHAR(50)
+        sample_values:
+          - '5001573612'
+          - '0510000316'
+          - '7940038675'
+      - name: EG_STATUS
+        synonyms:
+          - status
+          - condition
+          - state
+          - situation
+          - position
+        description: The current status of the logistics process for a purchase order shipment, indicating whether it is in transit, delivered, pending, or has encountered an issue.
+        expr: EG_STATUS
+        data_type: VARCHAR(50)
+      - name: EG_SUBCATEGORY
+        synonyms:
+          - subcategory_name
+          - subcategory_label
+          - subcategory_code
+          - subcategory_description
+          - subcategory_type
+          - subcategory_classification
+        description: A subcategory of the product or service being sold, with "OTHER" indicating that it does not fit into a predefined subcategory.
+        expr: EG_SUBCATEGORY
+        data_type: VARCHAR(100)
+        sample_values:
+          - OTHER
+      - name: ITEM_DESCRIPTION
+        synonyms:
+          - item_name
+          - product_description
+          - item_info
+          - product_info
+          - item_details
+        description: A text field that stores a detailed description of the item being tracked in the logistics system, providing a clear and concise identification of the product.
+        expr: ITEM_DESCRIPTION
+        data_type: VARCHAR(75)
+        sample_values:
+          - BONINE TRAVEL PACK (24/CS)
+          - LIQUID I.V. PASSION FRUIT 3 CT
+          - HAND SOAP GEL 11 FL OZ LEMON
+      - name: ITEM_NUMBER
+        synonyms:
+          - item_id
+          - product_number
+          - product_code
+          - sku
+          - stock_number
+          - part_number
+          - article_number
+        description: Unique identifier for the item being shipped or stored.
+        expr: ITEM_NUMBER
+        data_type: VARCHAR(20)
+        sample_values:
+          - MD40026AEXT
+          - '851409007516'
+          - '68711703'
+      - name: RETAILER
+        synonyms:
+          - seller
+          - merchant
+          - store
+          - vendor
+          - supplier
+          - distributor
+          - marketer
+          - trader
+          - dealer
+        description: The retailer that the product was shipped to or sold through.
+        expr: RETAILER
+        data_type: VARCHAR(1000)
+        sample_values:
+          - WALGREENS
+          - WALMART
+          - AMAZON
+      - name: UPC
+        synonyms:
+          - universal_product_code
+          - product_code
+          - item_code
+          - barcode
+          - product_identifier
+          - sku
+          - stock_keeping_unit
+        description: Unique identifier for a product, typically a 12-digit number assigned to a product by its manufacturer, used for inventory tracking and management purposes.
+        expr: UPC
+        data_type: VARCHAR(10)
+        sample_values:
+          - '5307619233'
+          - '8885300112'
+          - '7168766020'
+      - name: WEEK_NUMBER
+        synonyms:
+          - week_num
+          - week_no
+          - week_id
+          - week_index
+          - week_seq
+        description: The week of the year in which the logistics event occurred, where the first week of the year is the week that contains at least four days of the new year.
+        expr: WEEK_NUMBER
+        data_type: VARCHAR(16777216)
+    facts:
+      - name: DOLLARS
+        synonyms:
+          - revenue
+          - sales
+          - income
+          - earnings
+          - profit
+          - total_value
+          - amount_spent
+          - expenditure
+          - financial_value
+        description: The total amount of money spent on logistics, measured in US dollars.
+        expr: DOLLARS
+        data_type: NUMBER(38,8)
+        access_modifier: public_access
+        sample_values:
+          - '12603.60000000'
+          - '229.20000000'
+          - '27060.48000000'
+      - name: DOLLARS_YA
+        synonyms:
+          - previous_year_dollars
+          - last_year_dollars
+          - dollars_last_year
+          - prior_year_dollars
+          - year_ago_dollars
+        description: The total dollar amount spent on logistics for a specific period, likely representing the yearly actual (YA) expenditure.
+        expr: DOLLARS_YA
+        data_type: NUMBER(38,8)
+        access_modifier: public_access
+        sample_values:
+          - '29376.00000000'
+          - '27694.80000000'
+          - '135636.48000000'
+      - name: UNITS
+        synonyms:
+          - quantity
+          - amount
+          - count
+          - volume
+          - total_items
+          - item_count
+          - number_of_units
+          - stock_level
+          - inventory_level
+        description: The total quantity of units shipped or transported in a logistics operation.
+        expr: UNITS
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '1473'
+          - '1905'
+          - '9828'
+      - name: UNITS_YA
+        synonyms:
+          - units_last_year
+          - units_year_ago
+          - prior_year_units
+          - last_year_sales_volume
+          - previous_year_quantity
+        description: Units YTD (Year-to-Date) - The total number of units sold or moved through logistics year-to-date.
+        expr: UNITS_YA
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '2331'
+          - '1113'
+          - '2116'
+    time_dimensions:
+      - name: BUILDDATE
+        synonyms:
+          - build_date
+          - creation_date
+          - creation_timestamp
+          - load_date
+          - load_timestamp
+          - data_load_date
+          - data_load_time
+          - timestamp
+          - build_timestamp
+        description: Date and time when the build or deployment of the logistics system occurred.
+        expr: BUILDDATE
+        data_type: TIMESTAMP_LTZ(9)
+        sample_values:
+          - 2024-08-28T16:01:06.178+0000
+      - name: WEEK_END_DATE
+        synonyms:
+          - end_of_week_date
+          - week_close_date
+          - last_day_of_week
+          - weekly_cutoff_date
+          - end_date_of_week
+          - weekly_end_date
+          - week_ending_date
+        description: The date on which the logistics period ends, typically a Sunday, marking the conclusion of a weekly logistics cycle.
+        expr: WEEK_END_DATE
+        data_type: DATE
+        sample_values:
+          - '2023-01-16'
+          - '2022-12-12'
+          - '2023-12-25'
+  - name: LOGISTICS_INVENTORY
+    base_table:
+      database: OMEGA
+      schema: PROD
+      table: LOGISTICS_INVENTORY
+    dimensions:
+      - name: EG_CLIENT
+        expr: EG_CLIENT
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - HISAMITSU
+          - SCHOLLS
+          - RADIANTPURE
+        description: Client name for which the inventory is being managed.
+        synonyms:
+          - client_id
+          - client_name
+          - client_code
+          - customer_id
+          - customer_name
+          - client_identifier
+          - account_holder
+          - client_account
+      - name: EG_BRAND
+        expr: EG_BRAND
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - DOC
+          - SCHOLLS
+          - ACNEFREE
+        description: The brand name of the product in the inventory.
+        synonyms:
+          - brand_name
+          - manufacturer
+          - product_maker
+          - supplier_name
+          - vendor_brand
+          - company_name
+          - product_brand
+          - maker_name
+      - name: FACILITY
+        expr: FACILITY
+        data_type: VARCHAR(25)
+        sample_values:
+          - EMP
+          - EMD
+        description: The facility where the inventory is stored or managed, with possible values being EMP (Employee) or EMD (Emergency Management Division).
+        synonyms:
+          - location
+          - site
+          - building
+          - plant
+          - warehouse
+          - depot
+          - storage_facility
+          - distribution_center
+          - hub
+          - premises
+      - name: VENDOR
+        expr: VENDOR
+        data_type: VARCHAR(25)
+        sample_values:
+          - '310'
+          - '277'
+          - '280'
+        description: The VENDOR column represents the unique identifier for the supplier or vendor of the inventory items, allowing for tracking and analysis of inventory levels and movements by specific vendor.
+        synonyms:
+          - supplier
+          - provider
+          - seller
+          - manufacturer
+          - distributor
+          - merchant
+      - name: VENDOR_NAME
+        expr: VENDOR_NAME
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - CROWN LABORATORIES, INC.
+          - ACNE FREE
+          - HISAMITSU
+        description: The name of the vendor or supplier that provides the inventory items.
+        synonyms:
+          - supplier_name
+          - provider_name
+          - vendor_title
+          - company_name
+          - organization_name
+          - supplier_title
+          - provider_title
+      - name: ITEM
+        expr: ITEM
+        data_type: VARCHAR(200)
+        sample_values:
+          - '01070'
+          - S2924410A
+          - '90000052'
+        description: Unique identifier for a specific item in the inventory.
+        synonyms:
+          - product
+          - goods
+          - merchandise
+          - article
+          - commodity
+          - stock
+          - inventory_item
+          - object
+          - unit
+          - entity
+      - name: ITEM_DESCRIPTION
+        expr: ITEM_DESCRIPTION
+        data_type: VARCHAR(2203)
+        sample_values:
+          - MR-79B - SALONPAS DP-014 (VAS) Master Shipper
+          - 'MT-057K - SALONPAS INNER BOX: HP-020 INNER'
+          - WNP85 - TND SORE THROAT THERAPY ORANGE
+        description: Description of products or items stored in the inventory.
+        synonyms:
+          - item_info
+          - product_description
+          - item_details
+          - product_info
+          - item_specification
+          - product_specification
+          - item_characteristics
+          - product_characteristics
+      - name: LOT
+        expr: LOT
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - 3523G
+          - ADTM241118
+        description: Unique identifier for a batch of inventory, typically used to track and manage inventory lots throughout the logistics process.
+        synonyms:
+          - batch
+          - batch_number
+          - lot_number
+          - production_lot
+          - serial_number
+          - shipment_number
+          - stock_lot
+      - name: DESCRIPTION
+        expr: DESCRIPTION
+        data_type: VARCHAR(2000)
+        sample_values:
+          - PanOxyl 10%, Oil Control, and 40ct Patch
+          - Soapbox Hair Care, Body Care & Men's Flo
+          - RoC Retinol Correxion Deep Wrinkle Serum
+        description: This column contains a detailed description of the product, including its name, key ingredients, and sometimes its intended use or target audience, providing a clear and concise summary of the product's characteristics.
+        synonyms:
+          - item_info
+          - item_details
+          - product_description
+          - item_summary
+          - product_info
+          - details
+      - name: UOM
+        expr: UOM
+        data_type: VARCHAR(25)
+        sample_values:
+          - EA
+          - CS
+          - PL
+        description: Unit of Measure, representing the standard unit in which the inventory item is tracked and managed, such as Each (EA), Case (CS), or Pallet (PL).
+        synonyms:
+          - unit_of_measurement
+          - measurement_unit
+          - unit
+          - quantity_unit
+          - unit_type
+          - measurement_type
+      - name: INVENTORY_STATUS
+        expr: INVENTORY_STATUS
+        data_type: VARCHAR(25)
+        sample_values:
+          - RD
+          - PH
+          - DE
+        description: The current status of the inventory, indicating whether it is Ready for Dispatch (RD), Pending in the warehouse (PH), or Dispatched (DE).
+        synonyms:
+          - stock_status
+          - inventory_level
+          - stock_level
+          - item_status
+          - storage_status
+          - warehouse_status
+          - supply_status
+          - material_status
+      - name: STATUS_NAME
+        expr: STATUS_NAME
+        data_type: VARCHAR(2000)
+        sample_values:
+          - Project Hold
+          - Short Dated
+        description: The current status of the inventory item, indicating whether it is being held for a specific project or is approaching its expiration date.
+        synonyms:
+          - status_description
+          - inventory_status_name
+          - status_label
+          - condition_name
+          - inventory_condition_description
+      - name: FILENAME
+        expr: FILENAME
+        data_type: VARCHAR(255)
+        sample_values:
+          - 846_Inventory_Status_Report_2025-08-19-00-30-30.csv
+        description: The name of the file from which the inventory data was sourced.
+        synonyms:
+          - file_name
+          - document_name
+          - file_title
+          - data_source
+          - source_file
+          - upload_name
+          - file_identifier
+    time_dimensions:
+      - name: EXPIRATION_DATE
+        expr: EXPIRATION_DATE
+        data_type: DATE
+        sample_values:
+          - '2026-04-05'
+          - '2026-10-22'
+          - '2024-06-28'
+        description: The date by which the inventory item is no longer usable or saleable due to spoilage, expiration, or obsolescence.
+        synonyms:
+          - expiration
+          - end_date
+          - validity_date
+          - shelf_life
+          - best_before_date
+          - use_by_date
+          - valid_until
+          - deadline
+          - termination_date
+      - name: LOADDATE
+        expr: LOADDATE
+        data_type: TIMESTAMP_NTZ(9)
+        sample_values:
+          - 2025-08-19T00:30:30.000+0000
+        description: Date and time when the inventory data was loaded into the system.
+        synonyms:
+          - load_timestamp
+          - data_load_date
+          - import_date
+          - data_import_timestamp
+          - load_time
+          - data_load_time
+          - timestamp_loaded
+          - data_loaded_date
+      - name: FILEDATE
+        expr: FILEDATE
+        data_type: TIMESTAMP_NTZ(9)
+        sample_values:
+          - 2025-08-19T00:30:30.000+0000
+        description: Date and time when the inventory file was last updated.
+        synonyms:
+          - file_timestamp
+          - load_date
+          - data_load_date
+          - file_creation_date
+          - data_insertion_date
+          - timestamp_file
+          - file_upload_date
+    facts:
+      - name: TOTAL
+        expr: TOTAL
+        data_type: NUMBER(30,0)
+        sample_values:
+          - '4136'
+          - '3138'
+          - '90000'
+        description: Total quantity of inventory on hand.
+        synonyms:
+          - grand_total
+          - overall_total
+          - sum
+          - aggregate
+          - cumulative_total
+          - entirety
+          - complete_amount
+          - full_amount
+          - overall_sum
+      - name: AVAILABLE
+        expr: AVAILABLE
+        data_type: NUMBER(30,0)
+        sample_values:
+          - '261'
+          - '2463'
+          - '1935'
+        description: The quantity of inventory currently available for use or sale.
+        synonyms:
+          - in_stock
+          - on_hand
+          - quantity_available
+          - stock_level
+          - inventory_on_hand
+          - current_stock
+          - available_quantity
+      - name: ENTERED
+        expr: ENTERED
+        data_type: NUMBER(30,0)
+        sample_values:
+          - '90'
+          - '105'
+          - '1269'
+        description: The total quantity of inventory that has been received or entered into the logistics system.
+        synonyms:
+          - recorded
+          - logged
+          - input
+          - registered
+          - submitted
+          - posted
+          - added
+          - inserted
+          - uploaded
+      - name: COMMITTED
+        expr: COMMITTED
+        data_type: NUMBER(30,0)
+        sample_values:
+          - '105'
+          - '213'
+          - '209'
+        description: The quantity of inventory that has been allocated or reserved for specific customer orders or production schedules, and is no longer available for general use or sale.
+        synonyms:
+          - allocated
+          - reserved
+          - assigned
+          - pledged
+          - dedicated
+      - name: PICK_NOT_SHIP
+        expr: PICK_NOT_SHIP
+        data_type: NUMBER(30,0)
+        sample_values:
+          - '4'
+          - '219'
+          - '126'
+        description: The number of orders that have been picked from inventory but have not yet shipped to the customer.
+        synonyms:
+          - picked_not_shipped
+          - reserved_not_shipped
+          - allocated_not_shipped
+          - set_aside_not_shipped
+          - held_for_pickup
+relationships:
+  - name: LOGISTICS_INVENTORY_TO_POS_LOGISTICS
+    type: one_to_many
+    from:
+      table: LOGISTICS_INVENTORY
+      column: ITEM       # foreign key (many rows per item+lot+facility)
+    to:
+      table: POS_LOGISTICS
+      column: ITEM_NUMBER  # primary key at item level
+    description: Links inventory items to POS sales data by client and item.
+  - name: CVS_INVENTORY_TO_POS_FINAL
+    type: one_to_many
+    from:
+      table: INVENTORY_CVS_STORE
+      column:
+        - RETAILER
+        - EG_CLIENT
+        - "SKU #"
+        - WEEK_END_DATE
+    to:
+      table: POS_FINAL
+      column:
+        - RETAILER
+        - RETAILER_CLIENT
+        - RETAILER_ITEM_NUMBER
+        - WEEK_END_DATE
+    description: Links CVS inventory items to POS sales using retailer, client, item, and week.
+  - name: DG_DC_INVENTORY_TO_POS_FINAL
+    type: one_to_many
+    from:
+      table: INVENTORY_DOLLAR_GENERAL_DC
+      column:
+        - RETAILER
+        - EG_CLIENT
+        - RETAILER_ITEMNUMBER
+        - WEEK_END_DATE
+    to:
+      table: POS_FINAL
+      column:
+        - RETAILER
+        - RETAILER_CLIENT
+        - RETAILER_ITEM_NUMBER
+        - WEEK_END_DATE
+    description: Links Dollar General DC inventory items to POS sales using retailer, client, item, and week.
+  - name: DG_STORE_INVENTORY_TO_POS_FINAL
+    type: one_to_many
+    from:
+      table: INVENTORY_DOLLAR_GENERAL_STORE
+      column:
+        - RETAILER
+        - EG_CLIENT
+        - RETAILER_ITEMNUMBER
+        - WEEK_END_DATE
+    to:
+      table: POS_FINAL
+      column:
+        - RETAILER
+        - RETAILER_CLIENT
+        - RETAILER_ITEM_NUMBER
+        - WEEK_END_DATE
+    description: Links Dollar General Store inventory items to POS sales using retailer, client, item, and week.
+   - name: FD_DC_INVENTORY_TO_POS_FINAL
+    type: one_to_many
+    from:
+      table: INVENTORY_FAMILYDOLLAR_DC
+      column:
+        - RETAILER
+        - EG_CLIENT
+        - RETAILER_SKU
+        - WEEK_END_DATE
+    to:
+      table: POS_FINAL
+      column:
+        - RETAILER
+        - RETAILER_CLIENT
+        - RETAILER_ITEM_NUMBER
+        - WEEK_END_DATE
+    description: Links Family Dollar DC inventory items to POS sales using retailer, client, item, and week.
+  - name: FD_STORE_INVENTORY_TO_POS_FINAL
+    type: one_to_many
+    from:
+      table: INVENTORY_FAMILYDOLLAR_STORE
+      column:
+        - RETAILER
+        - EG_CLIENT
+        - RETAILER_SKU
+        - WEEK_END_DATE
+    to:
+      table: POS_FINAL
+      column:
+        - RETAILER
+        - RETAILER_CLIENT
+        - RETAILER_ITEM_NUMBER
+        - WEEK_END_DATE
+    description: Links Family Dollar Store inventory items to POS sales using retailer, client, item, and week.
+  - name: MEIJER_INVENTORY_TO_POS_FINAL
+    type: one_to_many
+    from:
+      table: INVENTORY_MEIJER
+      column:
+        - RETAILER
+        - EG_CLIENT
+        - RETAILER_SKU
+        - WEEK_END_DATE
+    to:
+      table: POS_FINAL
+      column:
+        - RETAILER
+        - RETAILER_CLIENT
+        - RETAILER_ITEM_NUMBER
+        - WEEK_END_DATE
+    description: Links Meijer inventory items to POS sales using retailer, client, item, and week.
+  - name: RITEAID_INVENTORY_TO_POS_FINAL
+    type: one_to_many
+    from:
+      table: INVENTORY_RITEAID
+      column:
+        - RETAILER
+        - EG_CLIENT
+        - "Original Item #"
+        - WEEK_END_DATE
+    to:
+      table: POS_FINAL
+      column:
+        - RETAILER
+        - RETAILER_CLIENT
+        - RETAILER_ITEM_NUMBER
+        - WEEK_END_DATE
+    description: Links RiteAid inventory items to POS sales using retailer, client, item, and week.
+  - name: TARGET_INVENTORY_TO_POS_FINAL
+    type: one_to_many
+    from:
+      table: INVENTORY_TARGET
+      column:
+        - RETAILER
+        - EG_CLIENT
+        - RETAILER_ITEMNUMBER
+        - WEEK_END_DATE
+    to:
+      table: POS_FINAL
+      column:
+        - RETAILER
+        - RETAILER_CLIENT
+        - RETAILER_ITEM_NUMBER
+        - WEEK_END_DATE
+    description: Links Target inventory items to POS sales using retailer, client, item, and week.
+  - name: WALGREENS_INVENTORY_TO_POS_FINAL
+    type: one_to_many
+    from:
+      table: INVENTORY_WALGREENS
+      column:
+        - RETAILER
+        - EG_CLIENT
+        - RETAILER_ITEM_NUMBER
+        - WEEK_END_DATE
+    to:
+      table: POS_FINAL
+      column:
+        - RETAILER
+        - RETAILER_CLIENT
+        - RETAILER_ITEM_NUMBER
+        - WEEK_END_DATE
+    description: Links Walgreens inventory items to POS sales using retailer, client, item, and week.
+
+relationships:
+  # Logistics Inventory ↔ POS Logistics
+  - name: logistics_inventory_pos
+    leftTable: LOGISTICS_INVENTORY
+    rightTable: POS_LOGISTICS
+    relationshipType: ONE_TO_MANY
+    joinType: INNER
+    relationshipColumns:
+      - leftColumn: EG_CLIENT
+        rightColumn: EG_CLIENT
+    description: The relationship between LOGISTICS_INVENTORY and POS_LOGISTICS, linking inventory data to point-of-sale logistics data based on client.
+
+  # CVS Inventory ↔ POS Final (aggregated)
+  - name: cvs_inventory_pos
+    leftTable: INVENTORY_CVS_STORE
+    rightTable: POS_FINAL_AGG
+    relationshipType: ONE_TO_MANY
+    joinType: INNER
+    relationshipColumns:
+      - leftColumn: RETAILER
+        rightColumn: RETAILER
+      - leftColumn: EG_CLIENT
+        rightColumn: EG_CLIENT
+      - leftColumn: "SKU #"
+        rightColumn: RETAILER_ITEM_NUMBER
+      - leftColumn: WEEK_END_DATE
+        rightColumn: WEEK_END_DATE
+    description: Links CVS store-level inventory to POS sales using retailer, client, item, and week.
