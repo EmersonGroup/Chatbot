@@ -19,16 +19,6 @@ SCHEMA = "PROD"
 SEMANTIC_VIEW = "OMEGA.PROD.CORTEX_TEST_V1"
 
 
-#if "CONN" not in st.session_state or st.session_state.CONN is None:
-    # For troubleshooting your snowflake connection see https://docs.snowflake.com/en/developer-guide/python-connector/python-connector-connect
-    st.session_state.CONN = snowflake.connector.connect(
-        account="KN30877.east-us-2.azure",
-        authenticator="externalbrowser", 
-        user="harika.reddy@emersongroup.com",
-        warehouse="COMPUTE_WH",
-        role="CORTEX_USER",
-    )
-
 
 st.title("Cortex Analyst")
 st.markdown(f"Semantic View: `{SEMANTIC_VIEW}`")
