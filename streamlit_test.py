@@ -23,26 +23,22 @@ SEMANTIC_VIEW = "OMEGA.PROD.CORTEX_TEST_V1"
 st.title("Cortex Analyst")
 st.markdown(f"Semantic View: `{SEMANTIC_VIEW}`")
 
-# Prompt user for Snowflake email
+# Single, fixed connection via service account
 if "CONN" not in st.session_state or st.session_state.CONN is None:
-    with st.form("login_form"):
-        user_email = st.text_input("Enter your Snowflake Email ID")
-        submitted = st.form_submit_button("Login")
-        if submitted:
-            try:
-                conn = snowflake.connector.connect(
-            account="KN30877.east-us-2.azure",
-            user="CORTEX_USER",
-            password="Snowflakecortex@25",
-            warehouse="COMPUTE_WH",
-            role="CORTEX_USER",
+    try:
+        cfg = st.secrets["sf"]
+        st.session_state.CONN = snowflake.connector.connect(
+            account     = cfg["account"],
+            user        = cfg["user"],
+            password    = cfg["password"],
+            role        = cfg["role"],
+            warehouse   = cfg["warehouse"],
+            authenticator = "snowflake",   # <-- service account (no SSO)
         )
-                st.session_state.CONN = conn
-                st.success("Logged in successfully.")
-            except Exception as e:
-                st.error(f"Login failed: {e}")
-                st.stop()
-
+        st.success("Service account connected.")
+    except Exception as e:
+        st.error(f"Failed to connect to Snowflake: {e}")
+        st.stop()
 
 
 def get_conversation_history() -> list[dict[str, Any]]:
