@@ -20,7 +20,7 @@ SEMANTIC_VIEW = "OMEGA.PROD.CORTEX_TEST_V1"
 
 
 st.set_page_config(page_title="Cortex Analyst", page_icon=":bar_chart:", layout="wide")
-logo_path = "assests/omega logo.png"
+logo_path = "assets/omega logo.png"
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:  # middle column
     st.image(logo_path, width=200)   # adjust width as needed
