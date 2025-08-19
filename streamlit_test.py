@@ -2,6 +2,7 @@
 import json
 import re
 from typing import Any, Generator, Iterator
+import base64
 
 import pandas
 import pandas as pd
@@ -20,18 +21,24 @@ SEMANTIC_VIEW = "OMEGA.PROD.CORTEX_TEST_V1"
 
 
 st.set_page_config(page_title="Cortex Analyst", page_icon=":bar_chart:", layout="wide")
-logo_path = "assets/Omega logo.png"
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:  # middle column
-    st.image(logo_path, width=200)   # adjust width as needed
-    st.markdown(
-        "<h1 style='text-align: center;'>Cortex Analyst</h1>",
-        unsafe_allow_html=True
-    )
-    st.markdown(
-        f"<p style='text-align: center; color: gray;'>Semantic View: <b>{'OMEGA.PROD.CORTEX_TEST_V1'}</b></p>",
-        unsafe_allow_html=True
-    )
+
+# Read logo as base64 (so it works on Streamlit Cloud too)
+with open("assets/omega_logo.png", "rb") as f:   # <-- adjust path if needed
+    logo_base64 = base64.b64encode(f.read()).decode()
+
+# Centered header with logo + title + subtitle
+st.markdown(
+    f"""
+    <div style="text-align: center;">
+        <img src="data:image/png;base64,{logo_base64}" width="220">
+        <h1 style="margin-top: 15px; margin-bottom: 5px;">Cortex Analyst</h1>
+        <p style="color: gray; font-size:16px; margin-top:0;">
+            Semantic View: <b>OMEGA.PROD.CORTEX_TEST_V1</b>
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 st.markdown(f"Semantic View: `{SEMANTIC_VIEW}`")
 
