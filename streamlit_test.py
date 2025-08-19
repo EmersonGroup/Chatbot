@@ -31,12 +31,12 @@ if "CONN" not in st.session_state or st.session_state.CONN is None:
         if submitted:
             try:
                 conn = snowflake.connector.connect(
-                    account="KN30877.east-us-2.azure",
-                    authenticator="externalbrowser",
-                    user=user_email,
-                    warehouse="COMPUTE_WH",
-                    role="CORTEX_USER",
-                )
+            account="KN30877.east-us-2.azure",
+            user="CORTEX_USER",
+            password="Snowflakecortex@25",
+            warehouse="COMPUTE_WH",
+            role="CORTEX_USER",
+        )
                 st.session_state.CONN = conn
                 st.success("Logged in successfully.")
             except Exception as e:
