@@ -152,7 +152,7 @@ def append_message(role: str, content: list[Any]) -> None:
 
 def process_message(prompt: str) -> None:
     """Processes a message and adds the response to the chat."""
-    st.session_state.messages.append("user", [prompt])
+    append_message("user", [prompt])
     with st.chat_message("user"):
         st.markdown(prompt)
 
@@ -187,7 +187,7 @@ def process_message(prompt: str) -> None:
                         accumulated_content.append(df)
                         display_df(df)
     st.session_state.status = "Interpreting question"
-    st.session_state.messages.append("analyst", accumulated_content)
+    append_message("analyst", accumulated_content)
 
 
 def show_conversation_history() -> None:
