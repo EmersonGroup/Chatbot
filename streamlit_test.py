@@ -23,7 +23,7 @@ SEMANTIC_VIEW = "OMEGA.PROD.CORTEX_TEST_V1"
 st.set_page_config(page_title="Cortex Analyst", page_icon=":bar_chart:", layout="wide")
 
 # Read logo as base64 (so it works on Streamlit Cloud too)
-with open("assets/omega_logo.png", "rb") as f:   # <-- adjust path if needed
+with open("assets/Omega logo.png", "rb") as f:   # <-- adjust path if needed
     logo_base64 = base64.b64encode(f.read()).decode()
 
 # Centered header with logo + title + subtitle
