@@ -339,7 +339,7 @@ st.markdown("<div style='flex:1;'></div>", unsafe_allow_html=True)
 if not st.session_state.messages and st.session_state.get("suggestions"):
     st.markdown(
         """
-        <div style="margin-bottom:16px;">
+        <div style="margin-bottom:2px;">
             <span style="font-weight:600; font-size:14px;"><b>💡 Sample Questions</b></span>
         </div>
         """,
