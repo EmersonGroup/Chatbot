@@ -119,6 +119,44 @@ if "CONN" not in st.session_state or st.session_state.CONN is None:
         st.stop()
 
 
+def fetch_initial_suggestions() -> list[str]:
+    """Send a lightweight hello to Cortex Analyst to fetch default recommendations."""
+    request_body = {
+        "messages": [{"role": "user", "content": [{"type": "text", "text": "hello"}]}],
+        "semantic_view": SEMANTIC_VIEW,
+        "stream": True,
+    }
+    resp = requests.post(
+        url=f"https://{st.session_state.CONN.host}/api/v2/cortex/analyst/message",
+        json=request_body,
+        headers={
+            "Authorization": f'Snowflake Token="{st.session_state.CONN.rest.token}"',
+            "Content-Type": "application/json",
+        },
+        stream=True,
+    )
+    if resp.status_code >= 400:
+        return []
+
+    suggestions = []
+    events = sseclient.SSEClient(resp).events()
+    for event in events:
+        if event.event == "message.content.delta":
+            data = json.loads(event.data)
+            if data["type"] == "suggestions":
+                suggestions.append(data["suggestions_delta"]["suggestion_delta"])
+        elif event.event == "status" and "Done" in event.data:
+            break
+    return suggestions
+
+
+# Initialize suggestions once
+if "suggestions" not in st.session_state:
+    st.session_state.suggestions = fetch_initial_suggestions()
+
+
+
+
 def get_conversation_history() -> list[dict[str, Any]]:
     messages = []
     for msg in st.session_state.messages:
@@ -291,6 +329,16 @@ if "messages" not in st.session_state:
     st.session_state.error = None
 
 show_conversation_history()
+
+
+# --- Show recommended questions before chat input ---
+if st.session_state.get("suggestions"):
+    st.markdown("### 💡 Recommended Questions")
+    for s in st.session_state.suggestions:
+        if st.button(s):
+            st.session_state.chat_started = True
+            process_message(prompt=s)
+
 
 # --- Chat input (only once in the whole app) ---
 user_input = st.chat_input("What is your question?")
