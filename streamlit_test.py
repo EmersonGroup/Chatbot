@@ -335,17 +335,23 @@ if "messages" not in st.session_state:
 show_conversation_history()
 
 
-# --- Show recommended questions before chat input ---
-if st.session_state.get("suggestions"):
+# --- Show recommended questions only before first chat ---
+if not st.session_state.messages and st.session_state.get("suggestions"):
     st.markdown("### 💡 Recommended Questions")
     for s in st.session_state.suggestions:
         if st.button(s):
             st.session_state.chat_started = True
             process_message(prompt=s)
+            # remove suggestions once used
+            st.session_state.suggestions = []
+            st.experimental_rerun()
+
 
 
 # --- Chat input (only once in the whole app) ---
 user_input = st.chat_input("What is your question?")
 if user_input:
     st.session_state.chat_started = True
+    st.session_state.suggestions = []  # ✅ clear out recs once chat starts
     process_message(prompt=user_input)
+
