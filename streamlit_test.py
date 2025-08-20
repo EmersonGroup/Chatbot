@@ -26,8 +26,9 @@ omega_icon = Image.open("assets/Omega logo v1.png").resize((64, 64))
 st.set_page_config(
     page_title="OMEGA ChatBot",
     page_icon=omega_icon,
-    layout="wide"
+    # layout="wide"   # ❌ remove this → defaults to normal centered layout
 )
+
 
 # =========================
 # LOGOS (read first, then use in CSS)
@@ -47,8 +48,8 @@ st.markdown(
         /* Emerson logo pinned top-right (under Share/GitHub) */
         .emerson-logo {{
             position: fixed;
-            top: 55px;     /* slightly lower than toolbar */
-            right: 20px;   /* aligned to right margin */
+            top: 65px;     /* slightly lower than before */
+            right: 20px;
             width: 90px;
             z-index: 1000;
         }}
@@ -62,11 +63,11 @@ st.markdown(
             margin-top: 70px;
         }}
         .omega-center img {{
-            width: 150px !important;   /* moderate size */
+            width: 180px !important;   /* increased size */
         }}
         .omega-center h1 {{
             font-size: 28px !important;
-            margin: 10px 0 6px 0;
+            margin: 12px 0 6px 0;
         }}
         .omega-center p {{
             font-size: 14px !important;
@@ -80,6 +81,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 # =========================
 # OMEGA HEADER
