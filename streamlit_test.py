@@ -48,7 +48,7 @@ st.markdown(
         /* Emerson logo pinned top-right (under Share/GitHub) */
         .emerson-logo {{
             position: fixed;
-            top: 65px;     /* slightly lower than before */
+            top: 60px;     /* slightly lower than before */
             right: 20px;
             width: 90px;
             z-index: 1000;
@@ -160,6 +160,10 @@ def stream(events: Iterator[sseclient.Event]) -> Generator[Any, Any, Any]:
     prev_index = -1
     prev_type = ""
     prev_suggestion_index = -1
+
+    # Reset suggestions each new response
+    st.session_state.suggestions = []
+
     while True:
         event = next(events, None)
         if not event:
@@ -168,39 +172,34 @@ def stream(events: Iterator[sseclient.Event]) -> Generator[Any, Any, Any]:
         new_content_block = event.event != "message.content.delta" or data["index"] != prev_index
 
         if prev_type == "sql" and new_content_block:
-            # Close sql markdown once sql section finishes.
             yield "\n```\n\n"
+
         match event.event:
             case "message.content.delta":
                 match data["type"]:
                     case "sql":
                         if new_content_block:
-                            # Add sql markdown when we enter a new sql block.
                             yield "```sql\n"
                         yield data["statement_delta"]
                     case "text":
                         yield data["text_delta"]
                     case "suggestions":
-                        if new_content_block:
-                            # Add a suggestions header when we enter a new suggestions block.
-                            yield "\nHere are some example questions you could ask:\n\n"
-                            yield "\n- "
-                        elif (
-                            prev_suggestion_index != data["suggestions_delta"]["index"]
-                        ):
-                            yield "\n- "
-                        yield data["suggestions_delta"]["suggestion_delta"]
-                        prev_suggestion_index = data["suggestions_delta"]["index"]
+                        # Capture Cortex suggestions into session state
+                        suggestion_text = data["suggestions_delta"]["suggestion_delta"]
+                        if suggestion_text not in st.session_state.suggestions:
+                            st.session_state.suggestions.append(suggestion_text)
+
                 prev_index = data["index"]
                 prev_type = data["type"]
+
             case "status":
                 st.session_state.status = data["status_message"]
-                # We return here to allow the spinner to update with the latest status, but this method will be
-                #  called again for the next iteration
                 return
+
             case "error":
                 st.session_state.error = data
                 return
+
 
 
 def display_df(df: pandas.DataFrame) -> None:
