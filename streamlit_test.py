@@ -20,21 +20,84 @@ SCHEMA = "PROD"
 SEMANTIC_VIEW = "OMEGA.PROD.CORTEX_TEST_V1"
 
 
-st.set_page_config(page_title="Cortex Analyst", page_icon=":bar_chart:", layout="wide")
+st.set_page_config(page_title="OMEGA ChatBot", page_icon=":bar_chart:", layout="wide")
 
 # Read logo as base64 (so it works on Streamlit Cloud too)
 with open("assets/Omega logo v1.png", "rb") as f:   # <-- adjust path if needed
     logo_base64 = base64.b64encode(f.read()).decode()
 
-# Centered header with logo + title + subtitle
+with open("assets/emersongroup_logo.png", "rb") as f:
+    emerson_logo_base64 = base64.b64encode(f.read()).decode()
+
+# --- CSS for Emerson logo (fixed top-right) ---
 st.markdown(
     f"""
-    <div style="text-align: center;">
-        <img src="data:image/png;base64,{logo_base64}" width="220">
-        <h1 style="margin-top: 15px; margin-bottom: 5px;">Cortex Analyst</h1>
-        <p style="color: gray; font-size:16px; margin-top:0;">
-            Semantic View: <b>OMEGA.PROD.CORTEX_TEST_V1</b>
-        </p>
+    <style>
+        /* Emerson logo fixed top-right */
+        .emerson-logo {{
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            width: 140px;
+            z-index: 999;
+        }}
+
+        /* Omega container - default centered */
+        #omega-header {{
+            text-align: center;
+            margin-top: 50px;
+        }}
+
+        /* When chat starts, move Omega to top-left */
+        .omega-top-left {{
+            position: fixed;
+            top: 15px;
+            left: 20px;
+            text-align: left !important;
+            margin: 0 !important;
+            z-index: 998;
+        }}
+
+        .omega-top-left img {{
+            width: 120px !important;
+        }}
+
+        .omega-top-left h1 {{
+            font-size: 20px !important;
+            margin: 5px 0 0 0 !important;
+        }}
+
+        .omega-top-left p {{
+            font-size: 12px !important;
+            margin: 0 !important;
+            color: gray !important;
+        }}
+    </style>
+
+    <!-- Emerson logo always pinned top-right -->
+    <img src="data:image/png;base64,{emerson_logo_base64}" class="emerson-logo">
+    """,
+    unsafe_allow_html=True,
+)
+
+# --- Track chat start ---
+if "chat_started" not in st.session_state:
+    st.session_state.chat_started = False
+
+# Simulate chat input
+user_input = st.chat_input("What is your question?")
+if user_input:
+    st.session_state.chat_started = True
+
+# --- Render Omega header ---
+omega_class = "omega-top-left" if st.session_state.chat_started else ""
+
+st.markdown(
+    f"""
+    <div id="omega-header" class="{omega_class}">
+        <img src="data:image/png;base64,{omega_logo_base64}" width="220">
+        <h1>Cortex Analyst</h1>
+        <p>Semantic View: <b>OMEGA.PROD.CORTEX_TEST_V1</b></p>
     </div>
     """,
     unsafe_allow_html=True,
