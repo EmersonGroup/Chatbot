@@ -33,19 +33,23 @@ with open("assets/emersongroup_logo.png", "rb") as f:
 st.markdown(
     f"""
     <style>
-        /* Emerson logo pinned top-right under Share */
-        .emerson-logo {{
+        /* Common toolbar offset so logos don't clash with Streamlit top bar */
+        .toolbar-offset {{
             position: fixed;
-            top: 8px;
-            right: 20px;
-            width: 90px;
+            top: 55px;   /* below Streamlit’s Share/GitHub toolbar */
             z-index: 1000;
         }}
 
-        /* Omega centered (initial) */
+        /* Emerson logo top-right */
+        .emerson-logo {{
+            right: 20px;
+            width: 90px;
+        }}
+
+        /* Omega initial center */
         .omega-center {{
             text-align: center;
-            margin-top: 70px;
+            margin-top: 100px;
         }}
         .omega-center img {{
             width: 140px !important;   /* moderate size */
@@ -60,12 +64,9 @@ st.markdown(
             margin: 0;
         }}
 
-        /* Omega shrinks top-left (after chat starts) */
+        /* Omega shrinks top-left after chat starts */
         .omega-top-left {{
-            position: fixed;
-            top: 8px;
             left: 20px;
-            z-index: 999;
             display: flex;
             align-items: center;
         }}
@@ -84,14 +85,15 @@ st.markdown(
         }}
     </style>
 
-    <!-- Emerson logo always -->
-    <img src="data:image/png;base64,{emerson_logo_base64}" class="emerson-logo">
+    <!-- Emerson logo always pinned -->
+    <img src="data:image/png;base64,{emerson_logo_base64}" 
+         class="toolbar-offset emerson-logo">
     """,
     unsafe_allow_html=True,
 )
 
 # --- Dynamic Omega header (only once) ---
-omega_class = "omega-top-left" if st.session_state.get("chat_started", False) else "omega-center"
+omega_class = "omega-top-left toolbar-offset" if st.session_state.get("chat_started", False) else "omega-center"
 
 st.markdown(
     f"""
@@ -105,6 +107,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 
 
