@@ -3,6 +3,7 @@ import json
 import re
 from typing import Any, Generator, Iterator
 import base64
+from PIL import Image
 
 import pandas
 import pandas as pd
@@ -20,7 +21,13 @@ SCHEMA = "PROD"
 SEMANTIC_VIEW = "OMEGA.PROD.CORTEX_TEST_V1"
 
 
-st.set_page_config(page_title="OMEGA ChatBot", page_icon=":bar_chart:", layout="wide")
+# --- Page Config with Omega logo as favicon ---
+omega_icon = Image.open("assets/Omega logo v1.png")
+st.set_page_config(
+    page_title="OMEGA ChatBot",
+    page_icon=omega_icon,
+    layout="wide"
+)
 
 # Read logo as base64 (so it works on Streamlit Cloud too)
 with open("assets/Omega logo v1.png", "rb") as f:   # <-- adjust path if needed
@@ -29,56 +36,35 @@ with open("assets/Omega logo v1.png", "rb") as f:   # <-- adjust path if needed
 with open("assets/emersongroup_logo.png", "rb") as f:
     emerson_logo_base64 = base64.b64encode(f.read()).decode()
 
-# --- CSS for Logos ---
+# --- CSS for positioning logos ---
 st.markdown(
     f"""
     <style>
-        /* Emerson logo pinned top-right under Share/GitHub */
-        .emerson-logo {{
+        /* Omega logo under Streamlit toolbar (top-left, moderate size) */
+        .omega-logo {{
             position: fixed;
-            top: 65px;       /* lower than the toolbar */
-            right: 20px;
-            width: 90px;     /* adjust size */
+            top: 55px;      /* just below Streamlit toolbar */
+            left: 20px;
+            width: 120px;   /* moderate size */
             z-index: 1000;
         }}
 
-        /* Omega always centered */
-        .omega-center {{
-            text-align: center;
-            margin-top: 80px;
-        }}
-        .omega-center img {{
-            width: 140px !important;   /* moderate size */
-        }}
-        .omega-center h1 {{
-            font-size: 26px !important;
-            margin: 8px 0 4px 0;
-        }}
-        .omega-center p {{
-            font-size: 14px !important;
-            color: gray !important;
-            margin: 0;
+        /* Emerson logo under Streamlit toolbar (top-right, a little lower) */
+        .emerson-logo {{
+            position: fixed;
+            top: 90px;      /* slightly lower than Omega */
+            right: 20px;    /* tuck under Share/GitHub */
+            width: 100px;
+            z-index: 1000;
         }}
     </style>
 
-    <!-- Emerson logo pinned -->
+    <!-- Insert logos -->
+    <img src="data:image/png;base64,{omega_logo_base64}" class="omega-logo">
     <img src="data:image/png;base64,{emerson_logo_base64}" class="emerson-logo">
     """,
     unsafe_allow_html=True,
 )
-
-# --- Omega header (always centered) ---
-st.markdown(
-    f"""
-    <div class="omega-center">
-        <img src="data:image/png;base64,{omega_logo_base64}">
-        <h1>Omega ChatBot</h1>
-        <p>Semantic View: <b>{SEMANTIC_VIEW}</b></p>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
 
 
 
