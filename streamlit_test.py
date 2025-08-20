@@ -90,7 +90,7 @@ st.markdown(
     f"""
     <div class="omega-center">
         <img src="data:image/png;base64,{omega_logo_base64}">
-        <h1>Conversational Insights with OMEGA</h1>
+        <h1>Ask. Explore. Discover. — with OMEGA</h1>
     </div>
     """,
     unsafe_allow_html=True,
@@ -334,18 +334,8 @@ show_conversation_history()
 
 # --- Show recommended questions only before first chat ---
 if not st.session_state.messages and st.session_state.get("suggestions"):
-    st.markdown(
-        """
-        <div style="margin:20px 0 10px 0;">
-            <h2 style="font-size:14px; color:gray;">
-                Ask questions in plain English and explore insights from OMEGA data.
-            </h2>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    st.markdown("📊 **Sample Questions**")
+    
+    st.markdown(""💡 **Sample Questions**")
     for s in st.session_state.suggestions:
         if st.button(s):
             st.session_state.chat_started = True
