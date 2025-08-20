@@ -90,7 +90,7 @@ st.markdown(
     f"""
     <div class="omega-center">
         <img src="data:image/png;base64,{omega_logo_base64}">
-        <h1>Omega ChatBot</h1>
+        <title>OMEGA ChatBot</title>
         <p>Semantic View: <b>{SEMANTIC_VIEW}</b></p>
     </div>
     """,
@@ -322,9 +322,19 @@ def show_conversation_history() -> None:
                     st.write(content)
 
 
-st.title("Omega ChatBot")
-#st.markdown(f"Semantic Model: `{FILE}`")
-st.markdown(f"Semantic View: `{SEMANTIC_VIEW}`")
+st.markdown(
+    """
+    <div style="text-align:center; margin-top:20px; margin-bottom:30px;">
+        <h2 style="font-size:16px; color:gray;">
+            Conversational Insights with OMEGA 
+        </h2>
+        <p style="font-size:14px; color:#555;">
+            Ask questions in plain English and explore insights from OMEGA data.
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 if "messages" not in st.session_state:
@@ -337,7 +347,7 @@ show_conversation_history()
 
 # --- Show recommended questions only before first chat ---
 if not st.session_state.messages and st.session_state.get("suggestions"):
-    st.markdown("💡 Recommended Questions")
+    st.markdown("💡 Sample Questions")
     for s in st.session_state.suggestions:
         if st.button(s):
             st.session_state.chat_started = True
@@ -349,7 +359,7 @@ if not st.session_state.messages and st.session_state.get("suggestions"):
 
 
 # --- Chat input (only once in the whole app) ---
-user_input = st.chat_input("What is your question?")
+user_input = st.chat_input("What insight would like to see?")
 if user_input:
     st.session_state.chat_started = True
     st.session_state.suggestions = []  # ✅ clear out recs once chat starts
