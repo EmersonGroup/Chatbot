@@ -22,50 +22,65 @@ SEMANTIC_VIEW = "OMEGA.PROD.CORTEX_TEST_V1"
 
 
 # --- Page Config with Omega logo as favicon ---
-omega_icon = Image.open("assets/Omega logo v1.png")
+omega_icon = Image.open("assets/Omega logo v1.png").resize((64, 64))  # force better favicon scaling
 st.set_page_config(
     page_title="OMEGA ChatBot",
     page_icon=omega_icon,
     layout="wide"
 )
 
-# Read logo as base64 (so it works on Streamlit Cloud too)
-with open("assets/Omega logo v1.png", "rb") as f:   # <-- adjust path if needed
-    omega_logo_base64 = base64.b64encode(f.read()).decode()
-
-with open("assets/emersongroup_logo.png", "rb") as f:
-    emerson_logo_base64 = base64.b64encode(f.read()).decode()
-
-# --- CSS for positioning logos ---
+# --- CSS for Logos ---
 st.markdown(
     f"""
     <style>
-        /* Omega logo under Streamlit toolbar (top-left, moderate size) */
-        .omega-logo {{
-            position: fixed;
-            top: 55px;      /* just below Streamlit toolbar */
-            left: 20px;
-            width: 120px;   /* moderate size */
-            z-index: 1000;
-        }}
-
-        /* Emerson logo under Streamlit toolbar (top-right, a little lower) */
+        /* Emerson logo pinned top-right under Share/GitHub */
         .emerson-logo {{
             position: fixed;
-            top: 90px;      /* slightly lower than Omega */
-            right: 20px;    /* tuck under Share/GitHub */
+            top: 12px;      /* close to toolbar */
+            right: 70px;    /* align near Share/GitHub */
             width: 100px;
             z-index: 1000;
         }}
+
+        /* Omega always centered properly */
+        .omega-center {{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 60px;
+        }}
+        .omega-center img {{
+            width: 160px !important;   /* moderate, not huge */
+        }}
+        .omega-center h1 {{
+            font-size: 28px !important;
+            margin: 10px 0 4px 0;
+        }}
+        .omega-center p {{
+            font-size: 14px !important;
+            color: gray !important;
+            margin: 0;
+        }}
     </style>
 
-    <!-- Insert logos -->
-    <img src="data:image/png;base64,{omega_logo_base64}" class="omega-logo">
+    <!-- Emerson logo pinned -->
     <img src="data:image/png;base64,{emerson_logo_base64}" class="emerson-logo">
     """,
     unsafe_allow_html=True,
 )
 
+# --- Omega header (always centered) ---
+st.markdown(
+    f"""
+    <div class="omega-center">
+        <img src="data:image/png;base64,{omega_logo_base64}">
+        <h1>Omega ChatBot</h1>
+        <p>Semantic View: <b>{SEMANTIC_VIEW}</b></p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 st.markdown(f"Semantic View: `{SEMANTIC_VIEW}`")
