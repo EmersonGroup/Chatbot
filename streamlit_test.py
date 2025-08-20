@@ -90,8 +90,7 @@ st.markdown(
     f"""
     <div class="omega-center">
         <img src="data:image/png;base64,{omega_logo_base64}">
-        <title>OMEGA ChatBot</title>
-        <p>Semantic View: <b>{SEMANTIC_VIEW}</b></p>
+        <h1>Conversational Insights with OMEGA</h1>
     </div>
     """,
     unsafe_allow_html=True,
@@ -99,7 +98,7 @@ st.markdown(
 
 
 
-st.markdown(f"Semantic View: `{SEMANTIC_VIEW}`")
+#st.markdown(f"Semantic View: `{SEMANTIC_VIEW}`")
 
 # Single, fixed connection via service account
 if "CONN" not in st.session_state or st.session_state.CONN is None:
@@ -326,11 +325,8 @@ st.markdown(
     """
     <div style="text-align:center; margin-top:20px; margin-bottom:30px;">
         <h2 style="font-size:16px; color:gray;">
-            Conversational Insights with OMEGA 
-        </h2>
-        <p style="font-size:14px; color:#555;">
             Ask questions in plain English and explore insights from OMEGA data.
-        </p>
+        </h2>
     </div>
     """,
     unsafe_allow_html=True,
