@@ -341,6 +341,24 @@ sample_container = st.container()
 # --- Chat input (always bottom) ---
 user_input = st.chat_input("What insight would you like to see?")
 
+# CSS to adjust spacing between sample questions and chat input
+st.markdown(
+    """
+    <style>
+        /* Push input bar up a bit from bottom */
+        .stChatInputContainer {
+            margin-bottom: 40px !important;  /* adjust this number */
+        }
+
+        /* Reduce gap below sample questions */
+        .sample-questions {
+            margin-bottom: 12px !important;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # --- Render sample questions only before first chat ---
 with sample_container:
     if not st.session_state.messages and st.session_state.get("suggestions"):
