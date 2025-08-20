@@ -33,11 +33,11 @@ with open("assets/emersongroup_logo.png", "rb") as f:
 st.markdown(
     f"""
     <style>
-        /* Emerson logo top-right, under Share */
+        /* Emerson logo pinned top-right under Share */
         .emerson-logo {{
             position: fixed;
             top: 8px;
-            right: 60px;
+            right: 20px;   /* tuck under Share */
             width: 90px;
             z-index: 1000;
         }}
@@ -45,14 +45,14 @@ st.markdown(
         /* Omega centered (initial) */
         .omega-center {{
             text-align: center;
-            margin-top: 80px;
+            margin-top: 70px;
         }}
         .omega-center img {{
             width: 160px !important;   /* moderate size */
         }}
         .omega-center h1 {{
-            font-size: 28px !important;
-            margin: 10px 0 5px 0;
+            font-size: 26px !important;
+            margin: 8px 0 4px 0;
         }}
         .omega-center p {{
             font-size: 14px !important;
@@ -64,33 +64,48 @@ st.markdown(
         .omega-top-left {{
             position: fixed;
             top: 8px;
-            left: 15px;
+            left: 20px;    /* left corner */
             z-index: 999;
+            display: flex;
+            align-items: center;
         }}
         .omega-top-left img {{
-            width: 50px !important;    /* small in header */
-            vertical-align: middle;
+            width: 50px !important;
+            margin-right: 8px;
         }}
         .omega-top-left h1 {{
-            display: inline-block;
             font-size: 18px !important;
-            margin: 0 0 0 8px !important;
-            vertical-align: middle;
+            margin: 0;
         }}
         .omega-top-left p {{
-            display: inline-block;
             font-size: 11px !important;
-            margin: 0 0 0 8px !important;
+            margin: 0 0 0 10px;
             color: gray !important;
-            vertical-align: middle;
         }}
     </style>
 
-    <!-- Emerson logo always pinned top-right -->
+    <!-- Emerson logo always pinned -->
     <img src="data:image/png;base64,{emerson_logo_base64}" class="emerson-logo">
     """,
     unsafe_allow_html=True,
 )
+
+# --- Dynamic Omega header ---
+omega_class = "omega-top-left" if st.session_state.get("chat_started", False) else "omega-center"
+
+st.markdown(
+    f"""
+    <div id="omega-header" class="{omega_class}">
+        <img src="data:image/png;base64,{omega_logo_base64}">
+        <div>
+            <h1>Omega ChatBot</h1>
+            <p>Semantic View: <b>{SEMANTIC_VIEW}</b></p>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 # --- Dynamic Omega header ---
 omega_class = "omega-top-left" if st.session_state.get("chat_started", False) else "omega-center"
