@@ -33,23 +33,19 @@ with open("assets/emersongroup_logo.png", "rb") as f:
 st.markdown(
     f"""
     <style>
-        /* Common toolbar offset so logos don't clash with Streamlit top bar */
-        .toolbar-offset {{
+        /* Emerson logo pinned top-right under Share/GitHub */
+        .emerson-logo {{
             position: fixed;
-            top: 55px;   /* below Streamlit’s Share/GitHub toolbar */
+            top: 65px;       /* lower than the toolbar */
+            right: 20px;
+            width: 90px;     /* adjust size */
             z-index: 1000;
         }}
 
-        /* Emerson logo top-right */
-        .emerson-logo {{
-            right: 20px;
-            width: 90px;
-        }}
-
-        /* Omega initial center */
+        /* Omega always centered */
         .omega-center {{
             text-align: center;
-            margin-top: 100px;
+            margin-top: 80px;
         }}
         .omega-center img {{
             width: 140px !important;   /* moderate size */
@@ -63,46 +59,21 @@ st.markdown(
             color: gray !important;
             margin: 0;
         }}
-
-        /* Omega shrinks top-left after chat starts */
-        .omega-top-left {{
-            left: 20px;
-            display: flex;
-            align-items: center;
-        }}
-        .omega-top-left img {{
-            width: 45px !important;
-            margin-right: 8px;
-        }}
-        .omega-top-left h1 {{
-            font-size: 18px !important;
-            margin: 0;
-        }}
-        .omega-top-left p {{
-            font-size: 11px !important;
-            margin: 0 0 0 10px;
-            color: gray !important;
-        }}
     </style>
 
-    <!-- Emerson logo always pinned -->
-    <img src="data:image/png;base64,{emerson_logo_base64}" 
-         class="toolbar-offset emerson-logo">
+    <!-- Emerson logo pinned -->
+    <img src="data:image/png;base64,{emerson_logo_base64}" class="emerson-logo">
     """,
     unsafe_allow_html=True,
 )
 
-# --- Dynamic Omega header (only once) ---
-omega_class = "omega-top-left toolbar-offset" if st.session_state.get("chat_started", False) else "omega-center"
-
+# --- Omega header (always centered) ---
 st.markdown(
     f"""
-    <div id="omega-header" class="{omega_class}">
+    <div class="omega-center">
         <img src="data:image/png;base64,{omega_logo_base64}">
-        <div>
-            <h1>Omega ChatBot</h1>
-            <p>Semantic View: <b>{SEMANTIC_VIEW}</b></p>
-        </div>
+        <h1>Omega ChatBot</h1>
+        <p>Semantic View: <b>{SEMANTIC_VIEW}</b></p>
     </div>
     """,
     unsafe_allow_html=True,
