@@ -33,12 +33,12 @@ with open("assets/emersongroup_logo.png", "rb") as f:
 st.markdown(
     f"""
     <style>
-        /* Emerson logo top-right under Share */
+        /* Emerson logo top-right, under Share */
         .emerson-logo {{
             position: fixed;
-            top: 8px;      /* align with header bar */
-            right: 60px;   /* just left of Share/Star/GitHub icons */
-            width: 90px;   /* smaller */
+            top: 8px;
+            right: 60px;
+            width: 90px;
             z-index: 1000;
         }}
 
@@ -47,33 +47,40 @@ st.markdown(
             text-align: center;
             margin-top: 80px;
         }}
+        .omega-center img {{
+            width: 160px !important;   /* moderate size */
+        }}
+        .omega-center h1 {{
+            font-size: 28px !important;
+            margin: 10px 0 5px 0;
+        }}
+        .omega-center p {{
+            font-size: 14px !important;
+            color: gray !important;
+            margin: 0;
+        }}
 
-        /* Omega compact top-left (after chat starts) */
+        /* Omega shrinks top-left after chat starts */
         .omega-top-left {{
             position: fixed;
             top: 8px;
             left: 15px;
-            text-align: left !important;
-            margin: 0 !important;
             z-index: 999;
         }}
-
         .omega-top-left img {{
-            width: 50px !important;   /* shrink Omega logo */
+            width: 50px !important;    /* small in header */
             vertical-align: middle;
         }}
-
         .omega-top-left h1 {{
             display: inline-block;
             font-size: 18px !important;
-            margin: 0 0 0 10px !important;
+            margin: 0 0 0 8px !important;
             vertical-align: middle;
         }}
-
         .omega-top-left p {{
             display: inline-block;
             font-size: 11px !important;
-            margin: 0 0 0 10px !important;
+            margin: 0 0 0 8px !important;
             color: gray !important;
             vertical-align: middle;
         }}
@@ -86,10 +93,7 @@ st.markdown(
 )
 
 # --- Dynamic Omega header ---
-if st.session_state.get("chat_started", False):
-    omega_class = "omega-top-left"
-else:
-    omega_class = "omega-center"
+omega_class = "omega-top-left" if st.session_state.get("chat_started", False) else "omega-center"
 
 st.markdown(
     f"""
