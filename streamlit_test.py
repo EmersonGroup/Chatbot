@@ -341,35 +341,49 @@ sample_container = st.container()
 # --- Chat input (always bottom) ---
 user_input = st.chat_input("What insight would you like to see?")
 
-# CSS to adjust spacing between sample questions and chat input
+# --- CSS for professional style ---
 st.markdown(
     """
     <style>
-        /* Push input bar up a bit from bottom */
+        /* Push chat input slightly up */
         .stChatInputContainer {
-            margin-bottom: 40px !important;  /* adjust this number */
+            margin-bottom: 40px !important;
         }
 
-        /* Reduce gap below sample questions */
-        .sample-questions {
-            margin-bottom: 12px !important;
+        /* Section title for sample questions */
+        .sample-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: #444;
+            margin-bottom: 8px;
+        }
+
+        /* Sample question buttons as modern chips */
+        .stButton > button {
+            border-radius: 20px !important;
+            border: 1px solid #ddd !important;
+            background-color: #f9f9f9 !important;
+            color: #333 !important;
+            font-size: 14px !important;
+            padding: 6px 14px !important;
+            margin-bottom: 6px !important;
+            text-align: left !important;
+            white-space: normal !important;
+        }
+        .stButton > button:hover {
+            background-color: #eef6ff !important;
+            border-color: #4a90e2 !important;
+            color: #000 !important;
         }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# --- Render sample questions only before first chat ---
+# --- Render sample questions above input ---
 with sample_container:
     if not st.session_state.messages and st.session_state.get("suggestions"):
-        st.markdown(
-            """
-            <div style="margin-bottom:8px;">
-                <span style="font-weight:600; font-size:14px;"><b>💡 Sample Questions</b></span>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        st.markdown('<div class="sample-title">Try asking…</div>', unsafe_allow_html=True)
         for s in st.session_state.suggestions:
             if st.button(s, use_container_width=True):
                 st.session_state.chat_started = True
