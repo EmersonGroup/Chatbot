@@ -33,12 +33,12 @@ with open("assets/emersongroup_logo.png", "rb") as f:
 st.markdown(
     f"""
     <style>
-        /* Emerson logo pinned inside the Streamlit header bar */
+        /* Emerson logo pinned top-left */
         .emerson-logo {{
             position: fixed;
-            top: 8px;       /* align with header icons */
-            left: 15px;     /* flush left */
-            width: 120px;   /* scale down */
+            top: 45px;   /* adjust: 0px would hide under toolbar, 45px is just below it */
+            left: 15px;
+            width: 100px;   /* smaller size */
             z-index: 1000;
         }}
 
@@ -51,28 +51,28 @@ st.markdown(
         /* Omega compact top-left (after chat starts) */
         .omega-top-left {{
             position: fixed;
-            top: 8px;
-            left: 160px;   /* push right of Emerson logo */
+            top: 45px;     /* align with Emerson logo */
+            left: 140px;   /* push right of Emerson */
             text-align: left !important;
             margin: 0 !important;
             z-index: 999;
         }}
 
         .omega-top-left img {{
-            width: 70px !important;
+            width: 50px !important;   /* shrink the Omega logo */
             vertical-align: middle;
         }}
 
         .omega-top-left h1 {{
             display: inline-block;
-            font-size: 18px !important;
-            margin: 0 0 0 10px !important;
+            font-size: 16px !important;
+            margin: 0 0 0 8px !important;
             vertical-align: middle;
         }}
 
         .omega-top-left p {{
             font-size: 11px !important;
-            margin: 0 0 0 10px !important;
+            margin: 0 0 0 8px !important;
             color: gray !important;
         }}
     </style>
@@ -99,7 +99,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
 
 
 st.markdown(f"Semantic View: `{SEMANTIC_VIEW}`")
