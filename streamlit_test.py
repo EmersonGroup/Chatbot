@@ -24,7 +24,7 @@ st.set_page_config(page_title="OMEGA ChatBot", page_icon=":bar_chart:", layout="
 
 # Read logo as base64 (so it works on Streamlit Cloud too)
 with open("assets/Omega logo v1.png", "rb") as f:   # <-- adjust path if needed
-    logo_base64 = base64.b64encode(f.read()).decode()
+    omega_logo_base64 = base64.b64encode(f.read()).decode()
 
 with open("assets/emersongroup_logo.png", "rb") as f:
     emerson_logo_base64 = base64.b64encode(f.read()).decode()
