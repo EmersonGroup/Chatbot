@@ -21,41 +21,52 @@ SCHEMA = "PROD"
 SEMANTIC_VIEW = "OMEGA.PROD.CORTEX_TEST_V1"
 
 
-# --- Page Config with Omega logo as favicon ---
-omega_icon = Image.open("assets/Omega logo v1.png").resize((64, 64))  # force better favicon scaling
+# --- Page Config with Omega logo as favicon (resized for clarity) ---
+omega_icon = Image.open("assets/Omega logo v1.png").resize((64, 64))
 st.set_page_config(
     page_title="OMEGA ChatBot",
     page_icon=omega_icon,
     layout="wide"
 )
 
-# --- CSS for Logos ---
+# =========================
+# LOGOS (read first, then use in CSS)
+# =========================
+with open("assets/Omega logo v1.png", "rb") as f:
+    omega_logo_base64 = base64.b64encode(f.read()).decode()
+
+with open("assets/emersongroup_logo.png", "rb") as f:
+    emerson_logo_base64 = base64.b64encode(f.read()).decode()
+
+# =========================
+# CSS
+# =========================
 st.markdown(
     f"""
     <style>
-        /* Emerson logo pinned top-right under Share/GitHub */
+        /* Emerson logo pinned top-right (under Share/GitHub) */
         .emerson-logo {{
             position: fixed;
-            top: 12px;      /* close to toolbar */
-            right: 70px;    /* align near Share/GitHub */
-            width: 100px;
+            top: 55px;     /* slightly lower than toolbar */
+            right: 20px;   /* aligned to right margin */
+            width: 90px;
             z-index: 1000;
         }}
 
-        /* Omega always centered properly */
+        /* Omega logo + title centered */
         .omega-center {{
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin-top: 60px;
+            margin-top: 70px;
         }}
         .omega-center img {{
-            width: 160px !important;   /* moderate, not huge */
+            width: 150px !important;   /* moderate size */
         }}
         .omega-center h1 {{
             font-size: 28px !important;
-            margin: 10px 0 4px 0;
+            margin: 10px 0 6px 0;
         }}
         .omega-center p {{
             font-size: 14px !important;
@@ -70,7 +81,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- Omega header (always centered) ---
+# =========================
+# OMEGA HEADER
+# =========================
 st.markdown(
     f"""
     <div class="omega-center">
@@ -81,6 +94,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 
 st.markdown(f"Semantic View: `{SEMANTIC_VIEW}`")
