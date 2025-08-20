@@ -33,71 +33,73 @@ with open("assets/emersongroup_logo.png", "rb") as f:
 st.markdown(
     f"""
     <style>
-        /* Emerson logo pinned top-left, below Streamlit toolbar */
+        /* Emerson logo pinned inside the Streamlit header bar */
         .emerson-logo {{
             position: fixed;
-            top: 60px;   /* push below toolbar */
-            left: 20px;
-            width: 140px;
+            top: 8px;       /* align with header icons */
+            left: 15px;     /* flush left */
+            width: 120px;   /* scale down */
+            z-index: 1000;
+        }}
+
+        /* Omega centered (initial) */
+        .omega-center {{
+            text-align: center;
+            margin-top: 80px;
+        }}
+
+        /* Omega compact top-left (after chat starts) */
+        .omega-top-left {{
+            position: fixed;
+            top: 8px;
+            left: 160px;   /* push right of Emerson logo */
+            text-align: left !important;
+            margin: 0 !important;
             z-index: 999;
         }}
 
-        /* Omega container default: centered */
-        #omega-header {{
-            text-align: center;
-            margin-top: 60px;
-        }}
-
-        /* Omega after chat starts: move to top-left */
-        .omega-top-left {{
-            position: fixed;
-            top: 60px;   /* same baseline as Emerson */
-            left: 200px; /* push right of Emerson logo */
-            text-align: left !important;
-            margin: 0 !important;
-            z-index: 998;
-        }}
-
         .omega-top-left img {{
-            width: 100px !important;
+            width: 70px !important;
+            vertical-align: middle;
         }}
 
         .omega-top-left h1 {{
+            display: inline-block;
             font-size: 18px !important;
-            margin: 2px 0 0 0 !important;
+            margin: 0 0 0 10px !important;
+            vertical-align: middle;
         }}
 
         .omega-top-left p {{
-            font-size: 12px !important;
-            margin: 0 !important;
+            font-size: 11px !important;
+            margin: 0 0 0 10px !important;
             color: gray !important;
         }}
     </style>
 
-    <!-- Emerson logo always pinned top-left -->
+    <!-- Emerson logo always -->
     <img src="data:image/png;base64,{emerson_logo_base64}" class="emerson-logo">
     """,
     unsafe_allow_html=True,
 )
 
-# --- Track chat state ---
-if "chat_started" not in st.session_state:
-    st.session_state.chat_started = False
-
-
-# --- Omega logo and title ---
-omega_class = "omega-top-left" if st.session_state.chat_started else ""
+# --- Dynamic Omega header ---
+if st.session_state.get("chat_started", False):
+    omega_class = "omega-top-left"
+else:
+    omega_class = "omega-center"
 
 st.markdown(
     f"""
     <div id="omega-header" class="{omega_class}">
-        <img src="data:image/png;base64,{omega_logo_base64}" width="220">
-        <h1>Cortex Analyst</h1>
-        <p>Semantic View: <b>OMEGA.PROD.CORTEX_TEST_V1</b></p>
+        <img src="data:image/png;base64,{omega_logo_base64}">
+        <h1>Omega ChatBot</h1>
+        <p>Semantic View: <b>{SEMANTIC_VIEW}</b></p>
     </div>
     """,
     unsafe_allow_html=True,
 )
+
 
 
 st.markdown(f"Semantic View: `{SEMANTIC_VIEW}`")
