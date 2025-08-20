@@ -84,10 +84,6 @@ st.markdown(
 if "chat_started" not in st.session_state:
     st.session_state.chat_started = False
 
-# Only one chat_input in the entire app
-user_input = st.chat_input("What is your question?")
-if user_input:
-    st.session_state.chat_started = True
 
 # --- Omega logo and title ---
 omega_class = "omega-top-left" if st.session_state.chat_started else ""
@@ -286,7 +282,7 @@ def show_conversation_history() -> None:
                     st.write(content)
 
 
-st.title("Cortex Analyst")
+st.title("Omega ChatBot")
 #st.markdown(f"Semantic Model: `{FILE}`")
 st.markdown(f"Semantic View: `{SEMANTIC_VIEW}`")
 
@@ -298,5 +294,8 @@ if "messages" not in st.session_state:
 
 show_conversation_history()
 
-if user_input := st.chat_input("What is your question?"):
+# --- Chat input (only once in the whole app) ---
+user_input = st.chat_input("What is your question?")
+if user_input:
+    st.session_state.chat_started = True
     process_message(prompt=user_input)
