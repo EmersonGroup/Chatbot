@@ -331,22 +331,30 @@ if "messages" not in st.session_state:
 
 show_conversation_history()
 
+# --- Spacer pushes sample questions down to input ---
+st.markdown("<div style='flex:1;'></div>", unsafe_allow_html=True)
 
-# --- Show recommended questions only before first chat ---
+
+# --- Sample Questions (always just above chat input) ---
 if not st.session_state.messages and st.session_state.get("suggestions"):
-    st.markdown("💡 Sample Questions")
+    st.markdown(
+        """
+        <div style="margin-bottom:8px;">
+            <span style="font-weight:600; font-size:14px;"><b>💡 Sample Questions</b></span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     for s in st.session_state.suggestions:
-        if st.button(s):
+        if st.button(s, use_container_width=True):
             st.session_state.chat_started = True
             process_message(prompt=s)
             st.session_state.suggestions = []
             st.rerun()
 
-
-
-# --- Chat input (only once in the whole app) ---
+# --- Chat input (always bottom) ---
 user_input = st.chat_input("What insight would you like to see?")
 if user_input:
     st.session_state.chat_started = True
-    st.session_state.suggestions = []  # clear once chat starts
+    st.session_state.suggestions = []  # clear suggestions once chat starts
     process_message(prompt=user_input)
