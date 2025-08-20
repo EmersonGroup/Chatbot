@@ -29,42 +29,42 @@ with open("assets/Omega logo v1.png", "rb") as f:   # <-- adjust path if needed
 with open("assets/emersongroup_logo.png", "rb") as f:
     emerson_logo_base64 = base64.b64encode(f.read()).decode()
 
-# --- CSS for Emerson logo (fixed top-right) ---
+# --- CSS for Logos ---
 st.markdown(
     f"""
     <style>
-        /* Emerson logo fixed top-right */
+        /* Emerson logo pinned top-left, below Streamlit toolbar */
         .emerson-logo {{
             position: fixed;
-            top: 15px;
-            right: 20px;
+            top: 60px;   /* push below toolbar */
+            left: 20px;
             width: 140px;
             z-index: 999;
         }}
 
-        /* Omega container - default centered */
+        /* Omega container default: centered */
         #omega-header {{
             text-align: center;
-            margin-top: 50px;
+            margin-top: 60px;
         }}
 
-        /* When chat starts, move Omega to top-left */
+        /* Omega after chat starts: move to top-left */
         .omega-top-left {{
             position: fixed;
-            top: 15px;
-            left: 20px;
+            top: 60px;   /* same baseline as Emerson */
+            left: 200px; /* push right of Emerson logo */
             text-align: left !important;
             margin: 0 !important;
             z-index: 998;
         }}
 
         .omega-top-left img {{
-            width: 120px !important;
+            width: 100px !important;
         }}
 
         .omega-top-left h1 {{
-            font-size: 20px !important;
-            margin: 5px 0 0 0 !important;
+            font-size: 18px !important;
+            margin: 2px 0 0 0 !important;
         }}
 
         .omega-top-left p {{
@@ -74,22 +74,22 @@ st.markdown(
         }}
     </style>
 
-    <!-- Emerson logo always pinned top-right -->
+    <!-- Emerson logo always pinned top-left -->
     <img src="data:image/png;base64,{emerson_logo_base64}" class="emerson-logo">
     """,
     unsafe_allow_html=True,
 )
 
-# --- Track chat start ---
+# --- Track chat state ---
 if "chat_started" not in st.session_state:
     st.session_state.chat_started = False
 
-# Simulate chat input
+# Only one chat_input in the entire app
 user_input = st.chat_input("What is your question?")
 if user_input:
     st.session_state.chat_started = True
 
-# --- Render Omega header ---
+# --- Omega logo and title ---
 omega_class = "omega-top-left" if st.session_state.chat_started else ""
 
 st.markdown(
@@ -102,6 +102,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 st.markdown(f"Semantic View: `{SEMANTIC_VIEW}`")
 
