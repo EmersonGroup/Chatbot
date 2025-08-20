@@ -138,22 +138,20 @@ def fetch_initial_suggestions() -> list[str]:
     if resp.status_code >= 400:
         return []
 
-    suggestions = []
+    suggestions: dict[int, str] = {}  # index → accumulated text
     events = sseclient.SSEClient(resp).events()
     for event in events:
         if event.event == "message.content.delta":
             data = json.loads(event.data)
             if data["type"] == "suggestions":
-                s = data["suggestions_delta"]["suggestion_delta"]
-                if s not in suggestions:
-                    suggestions.append(s)
+                idx = data["suggestions_delta"]["index"]
+                delta = data["suggestions_delta"]["suggestion_delta"]
+                suggestions[idx] = suggestions.get(idx, "") + delta
         elif event.event == "error":
             break
-        elif event.event == "status":
-            # don't break immediately, wait until stream finishes naturally
-            if "done" in event.data.lower():
-                continue
-    return suggestions
+    # Return complete suggestions in order
+    return [s.strip() for _, s in sorted(suggestions.items())]
+
 
 
 
@@ -203,15 +201,15 @@ def send_message() -> requests.Response:
 def stream(events: Iterator[sseclient.Event]) -> Generator[Any, Any, Any]:
     prev_index = -1
     prev_type = ""
-    prev_suggestion_index = -1
-
-    # Reset suggestions each new response
-    st.session_state.suggestions = []
+    suggestion_buffer: dict[int, str] = {}
 
     while True:
         event = next(events, None)
         if not event:
+            # flush final suggestions
+            st.session_state.suggestions = [s.strip() for _, s in sorted(suggestion_buffer.items())]
             return
+
         data = json.loads(event.data)
         new_content_block = event.event != "message.content.delta" or data["index"] != prev_index
 
@@ -228,10 +226,10 @@ def stream(events: Iterator[sseclient.Event]) -> Generator[Any, Any, Any]:
                     case "text":
                         yield data["text_delta"]
                     case "suggestions":
-                        # Capture Cortex suggestions into session state
-                        suggestion_text = data["suggestions_delta"]["suggestion_delta"]
-                        if suggestion_text not in st.session_state.suggestions:
-                            st.session_state.suggestions.append(suggestion_text)
+                        idx = data["suggestions_delta"]["index"]
+                        delta = data["suggestions_delta"]["suggestion_delta"]
+                        suggestion_buffer[idx] = suggestion_buffer.get(idx, "") + delta
+                        st.session_state.suggestions = [s.strip() for _, s in sorted(suggestion_buffer.items())]
 
                 prev_index = data["index"]
                 prev_type = data["type"]
