@@ -341,14 +341,14 @@ sample_container = st.container()
 # --- Chat input (always bottom) ---
 user_input = st.chat_input("What insight would you like to see?")
 
-# --- CSS refined style ---
+# --- CSS for professional style ---
 st.markdown(
     """
     <style>
         /* Remove gap: pull samples right above input */
         .stChatInputContainer {
             margin-top: 0px !important;
-            margin-bottom: 20px !important; /* smaller than before */
+            margin-bottom: 30px !important; /* smaller than before */
         }
 
         /* Section title */
@@ -359,11 +359,11 @@ st.markdown(
             margin-bottom: 6px;
         }
 
-        /* Transparent-ish sample question pills */
+        /* Sample question buttons as modern chips */
         .stButton > button {
             border-radius: 18px !important;
             border: 1px solid rgba(0, 0, 0, 0.1) !important;
-            background-color: rgba(255, 255, 255, 0.6) !important;
+            background-color: #f9f9f9 !important;
             backdrop-filter: blur(6px); /* glass effect */
             color: rgba(0, 0, 0, 0.75) !important;
             font-size: 14px !important;
