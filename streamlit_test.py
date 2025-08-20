@@ -33,12 +33,12 @@ with open("assets/emersongroup_logo.png", "rb") as f:
 st.markdown(
     f"""
     <style>
-        /* Emerson logo pinned top-left */
+        /* Emerson logo top-right under Share */
         .emerson-logo {{
             position: fixed;
-            top: 45px;   /* adjust: 0px would hide under toolbar, 45px is just below it */
-            left: 15px;
-            width: 100px;   /* smaller size */
+            top: 8px;      /* align with header bar */
+            right: 60px;   /* just left of Share/Star/GitHub icons */
+            width: 90px;   /* smaller */
             z-index: 1000;
         }}
 
@@ -51,33 +51,35 @@ st.markdown(
         /* Omega compact top-left (after chat starts) */
         .omega-top-left {{
             position: fixed;
-            top: 45px;     /* align with Emerson logo */
-            left: 140px;   /* push right of Emerson */
+            top: 8px;
+            left: 15px;
             text-align: left !important;
             margin: 0 !important;
             z-index: 999;
         }}
 
         .omega-top-left img {{
-            width: 50px !important;   /* shrink the Omega logo */
+            width: 50px !important;   /* shrink Omega logo */
             vertical-align: middle;
         }}
 
         .omega-top-left h1 {{
             display: inline-block;
-            font-size: 16px !important;
-            margin: 0 0 0 8px !important;
+            font-size: 18px !important;
+            margin: 0 0 0 10px !important;
             vertical-align: middle;
         }}
 
         .omega-top-left p {{
+            display: inline-block;
             font-size: 11px !important;
-            margin: 0 0 0 8px !important;
+            margin: 0 0 0 10px !important;
             color: gray !important;
+            vertical-align: middle;
         }}
     </style>
 
-    <!-- Emerson logo always -->
+    <!-- Emerson logo always pinned top-right -->
     <img src="data:image/png;base64,{emerson_logo_base64}" class="emerson-logo">
     """,
     unsafe_allow_html=True,
@@ -99,6 +101,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 
 st.markdown(f"Semantic View: `{SEMANTIC_VIEW}`")
