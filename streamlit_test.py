@@ -334,8 +334,7 @@ show_conversation_history()
 
 # --- Show recommended questions only before first chat ---
 if not st.session_state.messages and st.session_state.get("suggestions"):
-    
-    st.markdown("💡 **Sample Questions**")
+    st.markdown("💡 Sample Questions")
     for s in st.session_state.suggestions:
         if st.button(s):
             st.session_state.chat_started = True
@@ -346,9 +345,8 @@ if not st.session_state.messages and st.session_state.get("suggestions"):
 
 
 # --- Chat input (only once in the whole app) ---
-user_input = st.chat_input("What insight would like to see?")
+user_input = st.chat_input("What insight would you like to see?")
 if user_input:
     st.session_state.chat_started = True
-    st.session_state.suggestions = []  # ✅ clear out recs once chat starts
+    st.session_state.suggestions = []  # clear once chat starts
     process_message(prompt=user_input)
-
