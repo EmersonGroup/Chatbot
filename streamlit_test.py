@@ -341,39 +341,44 @@ sample_container = st.container()
 # --- Chat input (always bottom) ---
 user_input = st.chat_input("What insight would you like to see?")
 
-# --- CSS for professional style ---
+# --- CSS refined style ---
 st.markdown(
     """
     <style>
-        /* Push chat input slightly up */
+        /* Remove gap: pull samples right above input */
         .stChatInputContainer {
-            margin-bottom: 40px !important;
+            margin-top: 0px !important;
+            margin-bottom: 20px !important; /* smaller than before */
         }
 
-        /* Section title for sample questions */
+        /* Section title */
         .sample-title {
             font-weight: 600;
             font-size: 15px;
-            color: #444;
-            margin-bottom: 8px;
+            color: #333;
+            margin-bottom: 6px;
         }
 
-        /* Sample question buttons as modern chips */
+        /* Transparent-ish sample question pills */
         .stButton > button {
-            border-radius: 20px !important;
-            border: 1px solid #ddd !important;
-            background-color: #f9f9f9 !important;
-            color: #333 !important;
+            border-radius: 18px !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            background-color: rgba(255, 255, 255, 0.6) !important;
+            backdrop-filter: blur(6px); /* glass effect */
+            color: rgba(0, 0, 0, 0.75) !important;
             font-size: 14px !important;
-            padding: 6px 14px !important;
-            margin-bottom: 6px !important;
+            font-weight: 400 !important;
+            padding: 8px 14px !important;
+            margin-bottom: 4px !important;
             text-align: left !important;
             white-space: normal !important;
         }
+
+        /* Hover effect in Omega blue */
         .stButton > button:hover {
-            background-color: #eef6ff !important;
-            border-color: #4a90e2 !important;
-            color: #000 !important;
+            background-color: rgba(0, 75, 135, 0.12) !important;
+            border-color: #004b87 !important;
+            color: #004b87 !important;
         }
     </style>
     """,
@@ -383,13 +388,14 @@ st.markdown(
 # --- Render sample questions above input ---
 with sample_container:
     if not st.session_state.messages and st.session_state.get("suggestions"):
-        st.markdown('<div class="sample-title">Try asking…</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sample-title">💡 Try asking…</div>', unsafe_allow_html=True)
         for s in st.session_state.suggestions:
             if st.button(s, use_container_width=True):
                 st.session_state.chat_started = True
                 process_message(prompt=s)
                 st.session_state.suggestions = []
                 st.rerun()
+
 
 # --- Handle chat input ---
 if user_input:
