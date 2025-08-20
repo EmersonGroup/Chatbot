@@ -348,7 +348,7 @@ st.markdown(
         /* Remove gap: pull samples right above input */
         .stChatInputContainer {
             margin-top: 0px !important;
-            margin-bottom: 5px !important; /* smaller than before */
+            margin-bottom: 20px !important; /* smaller than before */
         }
 
         /* Section title */
