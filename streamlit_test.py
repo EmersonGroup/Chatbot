@@ -337,14 +337,14 @@ show_conversation_history()
 
 # --- Show recommended questions only before first chat ---
 if not st.session_state.messages and st.session_state.get("suggestions"):
-    st.markdown("### 💡 Recommended Questions")
+    st.markdown("## 💡 Recommended Questions")
     for s in st.session_state.suggestions:
         if st.button(s):
             st.session_state.chat_started = True
             process_message(prompt=s)
             # remove suggestions once used
             st.session_state.suggestions = []
-            st.experimental_rerun()
+            st.rerun()
 
 
 
