@@ -37,7 +37,7 @@ st.markdown(
         .emerson-logo {{
             position: fixed;
             top: 8px;
-            right: 20px;   /* tuck under Share */
+            right: 20px;
             width: 90px;
             z-index: 1000;
         }}
@@ -48,7 +48,7 @@ st.markdown(
             margin-top: 70px;
         }}
         .omega-center img {{
-            width: 160px !important;   /* moderate size */
+            width: 140px !important;   /* moderate size */
         }}
         .omega-center h1 {{
             font-size: 26px !important;
@@ -60,17 +60,17 @@ st.markdown(
             margin: 0;
         }}
 
-        /* Omega shrinks top-left after chat starts */
+        /* Omega shrinks top-left (after chat starts) */
         .omega-top-left {{
             position: fixed;
             top: 8px;
-            left: 20px;    /* left corner */
+            left: 20px;
             z-index: 999;
             display: flex;
             align-items: center;
         }}
         .omega-top-left img {{
-            width: 50px !important;
+            width: 45px !important;
             margin-right: 8px;
         }}
         .omega-top-left h1 {{
@@ -84,13 +84,13 @@ st.markdown(
         }}
     </style>
 
-    <!-- Emerson logo always pinned -->
+    <!-- Emerson logo always -->
     <img src="data:image/png;base64,{emerson_logo_base64}" class="emerson-logo">
     """,
     unsafe_allow_html=True,
 )
 
-# --- Dynamic Omega header ---
+# --- Dynamic Omega header (only once) ---
 omega_class = "omega-top-left" if st.session_state.get("chat_started", False) else "omega-center"
 
 st.markdown(
@@ -101,21 +101,6 @@ st.markdown(
             <h1>Omega ChatBot</h1>
             <p>Semantic View: <b>{SEMANTIC_VIEW}</b></p>
         </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-
-# --- Dynamic Omega header ---
-omega_class = "omega-top-left" if st.session_state.get("chat_started", False) else "omega-center"
-
-st.markdown(
-    f"""
-    <div id="omega-header" class="{omega_class}">
-        <img src="data:image/png;base64,{omega_logo_base64}">
-        <h1>Omega ChatBot</h1>
-        <p>Semantic View: <b>{SEMANTIC_VIEW}</b></p>
     </div>
     """,
     unsafe_allow_html=True,
