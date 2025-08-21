@@ -428,36 +428,35 @@ user_input = st.chat_input("What insight would you like to see?")
 
 # --- Handle manual chat input ---
 if user_input:
-st.session_state.chat_started = True
-st.session_state.pending_prompt = user_input
-st.session_state.suggestions = []
-sample_container.empty() # ✅ Clear immediately
-st.rerun()
+    st.session_state.chat_started = True
+    st.session_state.pending_prompt = user_input
+    st.session_state.suggestions = []
+    sample_container.empty() # ✅ Clear immediately
+    st.rerun()
 
 
 # --- Render sample questions above input (only before first prompt) ---
 if not st.session_state.get("chat_started") and st.session_state.get("suggestions"):
-with sample_container.container():
-st.markdown('<div class="sample-title">💡 Sample Questions</div>', unsafe_allow_html=True)
-for s in st.session_state.suggestions:
-if st.button(s, key=f"sample_{s}", use_container_width=True):
-st.session_state.chat_started = True
-st.session_state.pending_prompt = s
-st.session_state.from_button = True # 👈 track source
-st.session_state.suggestions = []
-sample_container.empty() # ✅ Clear immediately
-st.rerun()
+    with sample_container.container():
+        st.markdown('<div class="sample-title">💡 Sample Questions</div>', unsafe_allow_html=True)
+        for s in st.session_state.suggestions:
+            if st.button(s, key=f"sample_{s}", use_container_width=True):
+                st.session_state.chat_started = True
+                st.session_state.pending_prompt = s
+                st.session_state.from_button = True # track source
+                st.session_state.suggestions = []
+                sample_container.empty() # Clear immediately
+                st.rerun()
 
 
 # --- Process pending prompt (typed or button) ---
 if st.session_state.get("pending_prompt"):
-prompt = st.session_state.pending_prompt
-st.session_state.pending_prompt = None
-st.session_state.from_button = False # reset always
-
-
-append_message("user", [prompt]) # ✅ Always append the user message ONCE here only
-process_message(prompt)
+    prompt = st.session_state.pending_prompt
+    st.session_state.pending_prompt = None
+    st.session_state.from_button = False # reset always
+    
+    append_message("user", [prompt]) # Always append the user message ONCE here only
+    process_message(prompt)
 
 
 # --- Show history after everything ---
