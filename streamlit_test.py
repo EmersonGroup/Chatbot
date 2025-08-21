@@ -278,7 +278,7 @@ def append_message(role: str, content: list[Any]) -> None:
 
 def process_message(prompt: str) -> None:
     """Processes a message and adds the response to the chat."""
-    append_message("user", [prompt])  # ✅ Only append, don’t re-render manually
+    #append_message("user", [prompt])  # ✅ Only append, don’t re-render manually
 
     accumulated_content = []
     sql_buffer = []
@@ -424,6 +424,15 @@ st.markdown(
 sample_container = st.empty()
 
 
+# --- Handle manual chat input ---
+if user_input:
+    st.session_state.chat_started = True
+    st.session_state.pending_prompt = user_input
+    st.session_state.from_button = False  # 👈 track source
+    st.session_state.suggestions = []
+    sample_container.empty()
+    st.rerun()
+
 # --- Render sample questions above input (only before first prompt) ---
 if not st.session_state.get("chat_started") and st.session_state.get("suggestions"):
     with sample_container.container():
@@ -432,23 +441,25 @@ if not st.session_state.get("chat_started") and st.session_state.get("suggestion
             if st.button(s, key=f"sample_{s}", use_container_width=True):
                 st.session_state.chat_started = True
                 st.session_state.pending_prompt = s
+                st.session_state.from_button = True  # 👈 track source
                 st.session_state.suggestions = []
-                sample_container.empty()  # ✅ Clear immediately
+                sample_container.empty()
                 st.rerun()
-
-# --- Handle manual chat input ---
-if user_input:
-    st.session_state.chat_started = True
-    st.session_state.pending_prompt = user_input
-    st.session_state.suggestions = []
-    sample_container.empty()  # ✅ Clear immediately
-    st.rerun()
 
 # --- Process pending prompt (typed or button) ---
 if st.session_state.get("pending_prompt"):
     prompt = st.session_state.pending_prompt
+    is_button = st.session_state.get("from_button", False)
     st.session_state.pending_prompt = None
+    st.session_state.from_button = False
+
+    # ✅ Append only if coming from chat input (not button, which shows before rerun)
+    if not is_button:
+        append_message("user", [prompt])
+
     process_message(prompt)
+
+
 
 
 show_conversation_history()
