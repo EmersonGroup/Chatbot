@@ -420,15 +420,24 @@ st.markdown(
 )
 
 # --- Render sample questions above input ---
-with sample_container:
-    if not st.session_state.messages and st.session_state.get("suggestions"):
-        st.markdown('<div class="sample-title">💡 Try asking…</div>', unsafe_allow_html=True)
-        for s in st.session_state.suggestions:
-            if st.button(s, use_container_width=True):
-                st.session_state.chat_started = True
-                process_message(prompt=s)
-                st.session_state.suggestions = []
-                st.rerun()
+#with sample_container:
+#    if not st.session_state.messages and st.session_state.get("suggestions"):
+#        st.markdown('<div class="sample-title">💡 Try asking…</div>', unsafe_allow_html=True)
+#        for s in st.session_state.suggestions:
+#            if st.button(s, use_container_width=True):
+#                st.session_state.chat_started = True
+#                process_message(prompt=s)
+#                st.session_state.suggestions = []
+#                st.rerun()
+
+# --- Always render sample questions at the very top ---
+if st.session_state.get("suggestions"):
+    st.markdown('<div class="sample-title">💡 Sample Questions</div>', unsafe_allow_html=True)
+    for s in st.session_state.suggestions:
+        if st.button(s, key=f"sample_{s}", use_container_width=True):
+            st.session_state.chat_started = True
+            process_message(prompt=s)
+            st.rerun()  # reruns but suggestions stay
 
 
 # --- Handle chat input ---
