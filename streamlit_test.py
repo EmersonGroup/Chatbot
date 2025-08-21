@@ -422,29 +422,35 @@ st.markdown(
 #                st.session_state.suggestions = []
 #                st.rerun()
 
-# --- Always render sample questions at the very top ---
+
+# --- Placeholder for suggestions (so we can clear them before rerun) ---
+sample_container = st.empty()
+
+
+# --- Render sample questions above input (only before first prompt) ---
 if not st.session_state.get("chat_started") and st.session_state.get("suggestions"):
-    st.markdown('<div class="sample-title">💡 Sample Questions</div>', unsafe_allow_html=True)
-    for s in st.session_state.suggestions:
-        if st.button(s, key=f"sample_{s}", use_container_width=True):
-            st.session_state.chat_started = True
-            st.session_state.suggestions = []
-            st.session_state.pending_prompt = s  # ✅ Queue for processing
-            st.rerun()
+    with sample_container.container():
+        st.markdown('<div class="sample-title">💡 Sample Questions</div>', unsafe_allow_html=True)
+        for s in st.session_state.suggestions:
+            if st.button(s, key=f"sample_{s}", use_container_width=True):
+                st.session_state.chat_started = True
+                st.session_state.pending_prompt = s
+                st.session_state.suggestions = []
+                sample_container.empty()  # ✅ Clear immediately
+                st.rerun()
 
-
-# --- Handle chat input ---
+# --- Handle manual chat input ---
 if user_input:
     st.session_state.chat_started = True
+    st.session_state.pending_prompt = user_input
     st.session_state.suggestions = []
-    st.session_state.pending_prompt = user_input  # ✅ Queue for processing
+    sample_container.empty()  # ✅ Clear immediately
     st.rerun()
 
-
-# --- Process pending prompt after rerun ---
+# --- Process pending prompt (typed or button) ---
 if st.session_state.get("pending_prompt"):
     prompt = st.session_state.pending_prompt
-    st.session_state.pending_prompt = None  # ✅ Avoid re-processing
+    st.session_state.pending_prompt = None
     process_message(prompt)
 
 
