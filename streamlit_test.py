@@ -275,50 +275,52 @@ def process_message(prompt: str) -> None:
         st.markdown(prompt)
 
     accumulated_content = []
-    sql_buffer = []  # collect SQL statements
-    text_buffer = []  # collect analyst explanations
+    sql_buffer = []
+    text_buffer = []
 
     with st.chat_message("assistant"):
-        with st.spinner("Omega is thinking..."):
+        with st.spinner("Omega is thinking..."):   # 🟢 Keep spinner alive
             response = send_message()
-        events = sseclient.SSEClient(response).events()  # type: ignore
+            events = sseclient.SSEClient(response).events()  # type: ignore
 
-        # --- Capture only (don’t stream directly to UI) ---
-        while st.session_state.status.lower() != "done":
-            event = next(events, None)
-            if not event:
-                break
+            # --- Capture Analyst output (don’t render yet) ---
+            while st.session_state.status.lower() != "done":
+                event = next(events, None)
+                if not event:
+                    break
 
-            data = json.loads(event.data)
-            if event.event == "message.content.delta":
-                if data["type"] == "text":
-                    text_buffer.append(data["text_delta"])
-                elif data["type"] == "sql":
-                    # build SQL but don’t render yet
-                    sql_buffer.append(data["statement_delta"])
-            elif event.event == "error":
-                st.error(f"Error: {data}", icon="🚨")
-                return
+                data = json.loads(event.data)
+                if event.event == "message.content.delta":
+                    if data["type"] == "text":
+                        text_buffer.append(data["text_delta"])
+                    elif data["type"] == "sql":
+                        sql_buffer.append(data["statement_delta"])
+                elif event.event == "error":
+                    st.error(f"Error: {data}", icon="🚨")
+                    return
 
-        # --- Execute queries & show results first ---
-        final_sql = "".join(sql_buffer).strip()
-        if final_sql:
-            with st.spinner("Executing query..."):
-                df = pd.read_sql(final_sql, st.session_state.CONN)
-                accumulated_content.append(df)
-                display_df(df)
+            # 🟢 Now spinner stays until query finishes
+            final_sql = "".join(sql_buffer).strip()
 
-        # --- Then render interpretation/explanation ---
-        if text_buffer:
-            st.markdown("".join(text_buffer))
+            # --- Show interpretation text FIRST ---
+            if text_buffer:
+                st.markdown(" ".join(text_buffer))
 
-        # --- Finally, show SQL only if user expands ---
-        if final_sql:
-            with st.expander("Show SQL query"):
-                st.code(final_sql, language="sql")
+            # --- Execute SQL & show results ---
+            if final_sql:
+                with st.spinner("Executing query..."):
+                    df = pd.read_sql(final_sql, st.session_state.CONN)
+                    accumulated_content.append(df)
+                    display_df(df)
+
+            # --- Show SQL last (toggle) ---
+            if final_sql:
+                with st.expander("Show SQL query"):
+                    st.code(final_sql, language="sql")
 
     st.session_state.status = "Interpreting question"
     append_message("analyst", accumulated_content)
+
 
 
 
