@@ -348,7 +348,7 @@ if user_input:
 # --- Render sample questions above input (only before first prompt) ---
 if not st.session_state.get("chat_started") and st.session_state.get("suggestions"):
     with sample_container.container():
-        st.markdown('<div class="sample-title">💡 Sample Questions</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sample-title">💡 Try This..</div>', unsafe_allow_html=True)
         for s in st.session_state.suggestions:
             if st.button(s, key=f"sample_{s}", use_container_width=True):
                 st.session_state.chat_started = True
