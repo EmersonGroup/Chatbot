@@ -109,13 +109,6 @@ if "CONN" not in st.session_state or st.session_state.CONN is None:
 # -----------------------
 # Session state inits
 # -----------------------
-if "pending_prompt" not in st.session_state:
-    st.session_state.pending_prompt = None
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-    st.session_state.status = "idle"
-    st.session_state.error = None
-
 if "clear_chat_triggered" not in st.session_state:
     st.session_state.clear_chat_triggered = False
 
@@ -125,6 +118,14 @@ if st.session_state.clear_chat_triggered:
     st.session_state.chat_started = False
     st.session_state.clear_chat_triggered = False
     st.rerun()
+
+if "pending_prompt" not in st.session_state:
+    st.session_state.pending_prompt = None
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+    st.session_state.status = "idle"
+    st.session_state.error = None
+
 
 
 def fetch_initial_suggestions() -> list[str]:
