@@ -116,6 +116,17 @@ if "messages" not in st.session_state:
     st.session_state.status = "idle"
     st.session_state.error = None
 
+if "clear_chat_triggered" not in st.session_state:
+    st.session_state.clear_chat_triggered = False
+
+if st.session_state.clear_chat_triggered:
+    st.session_state.messages = []
+    st.session_state.pending_prompt = None
+    st.session_state.chat_started = False
+    st.session_state.clear_chat_triggered = False
+    st.rerun()
+
+
 def fetch_initial_suggestions() -> list[str]:
     """Fetch default recommendations from Cortex Analyst."""
     request_body = {
@@ -335,7 +346,18 @@ st.markdown(
 sample_container = st.empty()
 
 # --- Chat input (always bottom) ---
-user_input = st.chat_input("What insight would you like to see?")
+#user_input = st.chat_input("What insight would you like to see?")
+# --- Chat input with refresh icon ---
+col1, col2 = st.columns([12, 1])
+with col1:
+    user_input = st.chat_input("What insight would you like to see?")
+with col2:
+    refresh_clicked = st.button("🔄", help="Clear chat", key="clear_chat_icon", use_container_width=True)
+
+if refresh_clicked:
+    st.session_state.clear_chat_triggered = True
+    st.rerun()
+
 
 # --- Handle manual chat input ---
 if user_input:
