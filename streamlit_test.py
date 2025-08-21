@@ -275,51 +275,51 @@ def process_message(prompt: str) -> None:
         st.markdown(prompt)
 
     accumulated_content = []
-    sql_buffer = []  # <-- store SQL here
+    sql_buffer = []  # collect SQL statements
+    text_buffer = []  # collect analyst explanations
 
     with st.chat_message("assistant"):
-        with st.spinner("Sending request..."):
+        with st.spinner("Omega is thinking..."):
             response = send_message()
-
         events = sseclient.SSEClient(response).events()  # type: ignore
 
+        # --- Capture only (don’t stream directly to UI) ---
         while st.session_state.status.lower() != "done":
-            with st.spinner(st.session_state.status):
-                written_content = st.write_stream(stream(events))
-                accumulated_content.append(written_content)
+            event = next(events, None)
+            if not event:
+                break
 
-            if st.session_state.error:
-                st.error(
-                    f"Error while processing request:\n {st.session_state.error}",
-                    icon="🚨",
-                )
-                accumulated_content.append(Exception(st.session_state.error))
-                st.session_state.error = None
-                st.session_state.status = "Interpreting question"
-                st.session_state.messages.pop()
+            data = json.loads(event.data)
+            if event.event == "message.content.delta":
+                if data["type"] == "text":
+                    text_buffer.append(data["text_delta"])
+                elif data["type"] == "sql":
+                    # build SQL but don’t render yet
+                    sql_buffer.append(data["statement_delta"])
+            elif event.event == "error":
+                st.error(f"Error: {data}", icon="🚨")
                 return
 
-            # Capture SQL but don't render it yet
-            pattern = r"```sql\s*(.*?)\s*```"
-            sql_blocks = re.findall(pattern, written_content, re.DOTALL | re.IGNORECASE)
-            if sql_blocks:
-                sql_buffer.extend(sql_blocks)
-
-        # ✅ Execute queries and show results first
-        for sql_query in sql_buffer:
+        # --- Execute queries & show results first ---
+        final_sql = "".join(sql_buffer).strip()
+        if final_sql:
             with st.spinner("Executing query..."):
-                df = pd.read_sql(sql_query, st.session_state.CONN)
+                df = pd.read_sql(final_sql, st.session_state.CONN)
                 accumulated_content.append(df)
                 display_df(df)
 
-        # ✅ SQL shown only if user expands
-        if sql_buffer:
+        # --- Then render interpretation/explanation ---
+        if text_buffer:
+            st.markdown("".join(text_buffer))
+
+        # --- Finally, show SQL only if user expands ---
+        if final_sql:
             with st.expander("Show SQL query"):
-                for sql_query in sql_buffer:
-                    st.code(sql_query, language="sql")
+                st.code(final_sql, language="sql")
 
     st.session_state.status = "Interpreting question"
     append_message("analyst", accumulated_content)
+
 
 
 
