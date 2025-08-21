@@ -267,7 +267,7 @@ def append_message(role: str, content: list[Any]) -> None:
 def process_message(prompt: str) -> None:
     """Live-render the user/assistant for this turn, then append to history and
     tell the history renderer to skip these two messages once."""
-    # Show the user bubble immediately
+    # Show the user bubble immediately (history append happens before this call)
     with st.chat_message("user"):
         st.markdown(prompt)
 
@@ -275,28 +275,36 @@ def process_message(prompt: str) -> None:
     sql_buffer: list[str] = []
     accumulated_content: list[Any] = []
 
-    # Live assistant bubble with spinner
     with st.chat_message("assistant"):
         with st.spinner("Omega is thinking..."):
+            # 🔧 IMPORTANT: reset status before starting a fresh stream
+            st.session_state.status = "starting"
+
             response = send_message()
             events = sseclient.SSEClient(response).events()  # type: ignore
 
-            while st.session_state.status.lower() != "done":
-                event = next(events, None)
+            # Stream until we explicitly see a status 'done'
+            for event in events:
                 if not event:
                     break
 
-                data = json.loads(event.data)
                 if event.event == "message.content.delta":
+                    data = json.loads(event.data)
                     if data["type"] == "text":
                         text_buffer.append(data["text_delta"])
                     elif data["type"] == "sql":
                         sql_buffer.append(data["statement_delta"])
+
+                elif event.event == "status":
+                    data = json.loads(event.data)
+                    st.session_state.status = data.get("status_message", "")
+                    if st.session_state.status.lower() == "done":
+                        break
+
                 elif event.event == "error":
+                    data = json.loads(event.data)
                     st.error(f"Error: {data}", icon="🚨")
                     return
-                elif event.event == "status":
-                    st.session_state.status = data["status_message"]
 
             final_sql = "".join(sql_buffer).strip()
             interpretation = " ".join(text_buffer).strip()
@@ -313,18 +321,16 @@ def process_message(prompt: str) -> None:
                     accumulated_content.append(df)
                     display_df(df)
 
-            # SQL expander
-            if final_sql:
                 with st.expander("Show SQL query"):
                     st.code(final_sql, language="sql")
-                # Keep SQL in history as a lightweight dict
+                # Keep a lightweight record of SQL in history
                 accumulated_content.append({"_omega_sql": final_sql})
 
-    st.session_state.status = "Interpreting question"
+    # Persist the assistant turn, and tell the history renderer not to re-render this pair once
     append_message("analyst", accumulated_content)
-
-    # We live-rendered this turn (user + analyst), so skip re-rendering them once.
     st.session_state._skip_tail = 2
+    st.session_state.status = "idle"
+
 
 
 # =========================
