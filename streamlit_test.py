@@ -423,16 +423,25 @@ if st.session_state.get("suggestions"):
     for s in st.session_state.suggestions:
         if st.button(s, key=f"sample_{s}", use_container_width=True):
             st.session_state.chat_started = True
-            st.session_state.suggestions = []  # Clear suggestions once one is clicked
-            process_message(prompt=s)
-            st.rerun()  # reruns but suggestions stay
+            st.session_state.suggestions = []  # ✅ Clear suggestions immediately
+            st.session_state.messages.append({"role": "user", "content": [s]})  # Pre-add user message
+            st.rerun()  # ✅ Let next run handle processing cleanly from scratch
 
 
 # --- Handle chat input ---
 if user_input:
     st.session_state.chat_started = True
-    st.session_state.suggestions = []  # clear suggestions once chat starts
+    st.session_state.suggestions = []
     process_message(prompt=user_input)
+
+# Check if pre-added message from sample button
+elif (
+    st.session_state.messages
+    and st.session_state.messages[-1]["role"] == "user"
+    and "chat_started" in st.session_state
+    and not any(m["role"] == "analyst" for m in st.session_state.messages)
+):
+    process_message(prompt=st.session_state.messages[-1]["content"][0])
 
 show_conversation_history()
 
