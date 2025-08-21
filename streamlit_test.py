@@ -361,8 +361,6 @@ st.markdown("<div style='flex:1;'></div>", unsafe_allow_html=True)
 # --- Placeholder for sample questions (just above chat input) ---
 sample_container = st.container()
 
-# --- Chat input (always bottom) ---
-user_input = st.chat_input("What insight would you like to see?")
 
 # --- CSS for professional style ---
 st.markdown(
@@ -424,46 +422,46 @@ st.markdown(
 sample_container = st.empty()
 
 
+# --- Chat input (always bottom) ---
+user_input = st.chat_input("What insight would you like to see?")
+
+
 # --- Handle manual chat input ---
 if user_input:
-    st.session_state.chat_started = True
-    st.session_state.pending_prompt = user_input
-    st.session_state.from_button = False  # 👈 track source
-    st.session_state.suggestions = []
-    sample_container.empty()
-    st.rerun()
+st.session_state.chat_started = True
+st.session_state.pending_prompt = user_input
+st.session_state.suggestions = []
+sample_container.empty() # ✅ Clear immediately
+st.rerun()
+
 
 # --- Render sample questions above input (only before first prompt) ---
 if not st.session_state.get("chat_started") and st.session_state.get("suggestions"):
-    with sample_container.container():
-        st.markdown('<div class="sample-title">💡 Sample Questions</div>', unsafe_allow_html=True)
-        for s in st.session_state.suggestions:
-            if st.button(s, key=f"sample_{s}", use_container_width=True):
-                st.session_state.chat_started = True
-                st.session_state.pending_prompt = s
-                st.session_state.from_button = True  # 👈 track source
-                st.session_state.suggestions = []
-                sample_container.empty()
-                st.rerun()
+with sample_container.container():
+st.markdown('<div class="sample-title">💡 Sample Questions</div>', unsafe_allow_html=True)
+for s in st.session_state.suggestions:
+if st.button(s, key=f"sample_{s}", use_container_width=True):
+st.session_state.chat_started = True
+st.session_state.pending_prompt = s
+st.session_state.from_button = True # 👈 track source
+st.session_state.suggestions = []
+sample_container.empty() # ✅ Clear immediately
+st.rerun()
+
 
 # --- Process pending prompt (typed or button) ---
 if st.session_state.get("pending_prompt"):
-    prompt = st.session_state.pending_prompt
-    is_button = st.session_state.get("from_button", False)
-    st.session_state.pending_prompt = None
-    st.session_state.from_button = False
-
-    # ✅ Append only if coming from chat input (not button, which shows before rerun)
-    if not is_button:
-        append_message("user", [prompt])
-
-    process_message(prompt)
+prompt = st.session_state.pending_prompt
+st.session_state.pending_prompt = None
+st.session_state.from_button = False # reset always
 
 
+append_message("user", [prompt]) # ✅ Always append the user message ONCE here only
+process_message(prompt)
 
 
+# --- Show history after everything ---
 show_conversation_history()
-
 
 
 
