@@ -118,6 +118,11 @@ if "CONN" not in st.session_state or st.session_state.CONN is None:
         st.error(f"Failed to connect to Snowflake: {e}")
         st.stop()
 
+# Process pending prompt after rerun ---
+# Initialize pending prompt state
+if "pending_prompt" not in st.session_state:
+    st.session_state.pending_prompt = None
+
 
 def fetch_initial_suggestions() -> list[str]:
     """Fetch default recommendations from Cortex Analyst."""
@@ -418,30 +423,30 @@ st.markdown(
 #                st.rerun()
 
 # --- Always render sample questions at the very top ---
-if st.session_state.get("suggestions"):
+if not st.session_state.get("chat_started") and st.session_state.get("suggestions"):
     st.markdown('<div class="sample-title">💡 Sample Questions</div>', unsafe_allow_html=True)
     for s in st.session_state.suggestions:
         if st.button(s, key=f"sample_{s}", use_container_width=True):
             st.session_state.chat_started = True
-            st.session_state.suggestions = []  # ✅ Clear suggestions immediately
-            st.session_state.messages.append({"role": "user", "content": [s]})  # Pre-add user message
-            st.rerun()  # ✅ Let next run handle processing cleanly from scratch
+            st.session_state.suggestions = []
+            st.session_state.pending_prompt = s  # ✅ Queue for processing
+            st.rerun()
 
 
 # --- Handle chat input ---
 if user_input:
     st.session_state.chat_started = True
     st.session_state.suggestions = []
-    process_message(prompt=user_input)
+    st.session_state.pending_prompt = user_input  # ✅ Queue for processing
+    st.rerun()
 
-# Check if pre-added message from sample button
-elif (
-    st.session_state.messages
-    and st.session_state.messages[-1]["role"] == "user"
-    and "chat_started" in st.session_state
-    and not any(m["role"] == "analyst" for m in st.session_state.messages)
-):
-    process_message(prompt=st.session_state.messages[-1]["content"][0])
+
+# --- Process pending prompt after rerun ---
+if st.session_state.get("pending_prompt"):
+    prompt = st.session_state.pending_prompt
+    st.session_state.pending_prompt = None  # ✅ Avoid re-processing
+    process_message(prompt)
+
 
 show_conversation_history()
 
