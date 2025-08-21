@@ -244,52 +244,12 @@ def stream(events: Iterator[sseclient.Event]) -> Generator[Any, Any, Any]:
 
 
 
+
 def display_df(df: pd.DataFrame) -> None:
     if len(df) == 0:
         st.info("No data returned.")
-        return
-
-    data_tab, chart_tab = st.tabs(["Data", "Chart"])
-    data_tab.dataframe(df)
-
-    try:
-        numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
-        date_cols = [c for c in df.columns if "date" in c.lower() or "week" in c.lower()]
-        cat_cols = [c for c in df.columns if df[c].dtype == "object" and df[c].nunique() < 20]
-
-        chart = None
-
-        # Case 1: time-series → line chart
-        if date_cols and numeric_cols:
-            x = date_cols[0]
-            y = numeric_cols[0]   # just first numeric for clarity
-            chart = (
-                alt.Chart(df)
-                .mark_line(point=True)
-                .encode(x=x, y=y, tooltip=df.columns.tolist())
-                .properties(width="container")
-            )
-
-        # Case 2: categorical → bar chart
-        elif cat_cols and numeric_cols:
-            x = cat_cols[0]
-            y = numeric_cols[0]
-            chart = (
-                alt.Chart(df)
-                .mark_bar()
-                .encode(x=x, y=y, tooltip=df.columns.tolist())
-                .properties(width="container")
-            )
-
-        if chart is not None:
-            chart_tab.altair_chart(chart, use_container_width=True)
-        else:
-            chart_tab.info("Chart not available for this result.")
-
-    except Exception as e:
-        chart_tab.warning(f"Chart could not be rendered: {e}")
-
-
+    else:
+        st.dataframe(df)
 
 
 
