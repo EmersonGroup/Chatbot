@@ -260,12 +260,18 @@ def append_message(role: str, content: list[Any]) -> None:
     """
     Cortex requires roles to alternate (user -> analyst -> user ...).
     This helper ensures we don't accidentally push two of the same in a row.
+    Filters out empty strings so we don't send invalid messages to Cortex.
     """
+    # Remove empty strings and None
+    clean_content = [c for c in content if not (isinstance(c, str) and c.strip() == "")]
+    if not clean_content:
+        return  # don’t append if nothing meaningful
+
     if st.session_state.messages and st.session_state.messages[-1]["role"] == role:
-        # If the last message has the same role, extend it instead of appending
-        st.session_state.messages[-1]["content"].extend(content)
+        st.session_state.messages[-1]["content"].extend(clean_content)
     else:
-        st.session_state.messages.append({"role": role, "content": content})
+        st.session_state.messages.append({"role": role, "content": clean_content})
+
 
 
 def process_message(prompt: str) -> None:
@@ -303,8 +309,10 @@ def process_message(prompt: str) -> None:
             final_sql = "".join(sql_buffer).strip()
 
             # --- Show interpretation text FIRST ---
-            if text_buffer:
-                st.markdown(" ".join(text_buffer))
+            if text_buffer and "".join(text_buffer).strip():
+                st.info(" ".join(text_buffer))   # styled nicely
+                accumulated_content.append(" ".join(text_buffer))
+                #st.markdown(" ".join(text_buffer))
 
             # --- Execute SQL & show results ---
             if final_sql:
