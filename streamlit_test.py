@@ -423,6 +423,7 @@ if st.session_state.get("suggestions"):
     for s in st.session_state.suggestions:
         if st.button(s, key=f"sample_{s}", use_container_width=True):
             st.session_state.chat_started = True
+            st.session_state.suggestions = []  # Clear suggestions once one is clicked
             process_message(prompt=s)
             st.rerun()  # reruns but suggestions stay
 
@@ -430,7 +431,7 @@ if st.session_state.get("suggestions"):
 # --- Handle chat input ---
 if user_input:
     st.session_state.chat_started = True
-    #st.session_state.suggestions = []  # clear suggestions once chat starts
+    st.session_state.suggestions = []  # clear suggestions once chat starts
     process_message(prompt=user_input)
 
 show_conversation_history()
