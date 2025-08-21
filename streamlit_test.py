@@ -205,21 +205,24 @@ def append_message(role: str, content: list[Any]) -> None:
 # =========================
 def process_message(prompt: str) -> None:
     """Live-render this turn (user + spinner + results), then append to history and rerun."""
-    # Live user bubble
+
+    # Show user bubble
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    # Initialize buffers
     text_buffer: list[str] = []
     sql_buffer: list[str] = []
     accumulated_content: list[Any] = []
 
+    # Assistant bubble: we stream everything inside here
     with st.chat_message("assistant"):
         with st.spinner("Omega is thinking..."):
+
             st.session_state.status = "starting"
             response = send_message()
             events = sseclient.SSEClient(response).events()  # type: ignore
 
-            # Stream until 'done' or the stream ends
             for event in events:
                 if not event:
                     break
@@ -245,10 +248,12 @@ def process_message(prompt: str) -> None:
             final_sql = "".join(sql_buffer).strip()
             interpretation = " ".join(text_buffer).strip()
 
+            # Show interpretation first
             if interpretation:
                 st.info(interpretation)
                 accumulated_content.append(interpretation)
 
+            # Then run and show results
             if final_sql:
                 with st.spinner("Executing query..."):
                     df = pd.read_sql(final_sql, st.session_state.CONN)
@@ -259,12 +264,11 @@ def process_message(prompt: str) -> None:
                     st.code(final_sql, language="sql")
                 accumulated_content.append({"_omega_sql": final_sql})
 
-    # persist assistant turn
+    # Save assistant message to history
     append_message("analyst", accumulated_content)
     st.session_state.status = "idle"
-
-    # Rerun so the next pass renders the full history (no duplicates)
     st.rerun()
+
 
 # =========================
 # HISTORY (simple, no skip-tail)
