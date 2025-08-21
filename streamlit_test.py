@@ -249,21 +249,28 @@ def display_df(df: pd.DataFrame) -> None:
         data_tab.dataframe(df)
 
         try:
-            # Only attempt charts if there’s more than 1 column
-            if len(df.columns) > 1:
-                df_chart = df.set_index(df.columns[0])
+            # Identify categorical vs numeric
+            cat_col = df.columns[0]   # assume first col = category (brand, channel, week, etc.)
+            num_cols = df.select_dtypes(include="number").columns.tolist()
+
+            if num_cols:
+                df_chart = df[[cat_col] + num_cols].set_index(cat_col)
+
                 with line_tab:
                     st.line_chart(df_chart)
+
                 with bar_tab:
                     st.bar_chart(df_chart)
             else:
-                line_tab.info("Not enough columns for chart.")
-                bar_tab.info("Not enough columns for chart.")
+                line_tab.info("No numeric columns to chart.")
+                bar_tab.info("No numeric columns to chart.")
+
         except Exception as e:
             line_tab.warning(f"Chart not available: {e}")
             bar_tab.warning(f"Chart not available: {e}")
     else:
         st.dataframe(df)
+
 
 
 def append_message(role: str, content: list[Any]) -> None:
