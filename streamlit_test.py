@@ -245,31 +245,40 @@ def stream(events: Iterator[sseclient.Event]) -> Generator[Any, Any, Any]:
 
 def display_df(df: pd.DataFrame) -> None:
     if len(df.index) > 1:
-        data_tab, line_tab, bar_tab = st.tabs(["Data", "Line Chart", "Bar Chart"])
+        data_tab, chart_tab = st.tabs(["Data", "Chart"])
         data_tab.dataframe(df)
 
+        # Try to auto-detect X and Y
         try:
-            # Identify categorical vs numeric
-            cat_col = df.columns[0]   # assume first col = category (brand, channel, week, etc.)
-            num_cols = df.select_dtypes(include="number").columns.tolist()
+            x_col = None
+            y_cols = []
 
-            if num_cols:
-                df_chart = df[[cat_col] + num_cols].set_index(cat_col)
+            # Prefer date column
+            for col in df.columns:
+                if "date" in col.lower() or "week" in col.lower():
+                    x_col = col
+                    break
 
-                with line_tab:
-                    st.line_chart(df_chart)
+            # Otherwise prefer first categorical col
+            if not x_col:
+                for col in df.columns:
+                    if df[col].dtype == "object":
+                        x_col = col
+                        break
 
-                with bar_tab:
-                    st.bar_chart(df_chart)
+            # Pick numeric columns for Y
+            y_cols = [col for col in df.columns if pd.api.types.is_numeric_dtype(df[col])]
+
+            if x_col and y_cols:
+                df_chart = df[[x_col] + y_cols].set_index(x_col)
+                chart_tab.line_chart(df_chart)
             else:
-                line_tab.info("No numeric columns to chart.")
-                bar_tab.info("No numeric columns to chart.")
-
+                chart_tab.info("No suitable chart available for this result.")
         except Exception as e:
-            line_tab.warning(f"Chart not available: {e}")
-            bar_tab.warning(f"Chart not available: {e}")
+            chart_tab.warning(f"Chart not available: {e}")
     else:
         st.dataframe(df)
+
 
 
 
