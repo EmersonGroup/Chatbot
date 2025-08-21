@@ -1,4 +1,3 @@
-
 import json
 import re
 from typing import Any, Generator, Iterator
@@ -49,7 +48,7 @@ st.markdown(
         /* Emerson logo pinned top-right (under Share/GitHub) */
         .emerson-logo {{
             position: fixed;
-            top: 60px;     /* slightly lower than before */
+            top: 60px;
             right: 20px;
             width: 90px;
             z-index: 1000;
@@ -64,7 +63,7 @@ st.markdown(
             margin-top: 70px;
         }}
         .omega-center img {{
-            width: 180px !important;   /* increased size */
+            width: 180px !important;
         }}
         .omega-center h1 {{
             font-size: 28px !important;
@@ -97,31 +96,32 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
-
-#st.markdown(f"Semantic View: `{SEMANTIC_VIEW}`")
-
 # Single, fixed connection via service account
 if "CONN" not in st.session_state or st.session_state.CONN is None:
     try:
         cfg = st.secrets["sf"]
         st.session_state.CONN = snowflake.connector.connect(
-            account     = cfg["account"],
-            user        = cfg["user"],
-            password    = cfg["password"],
-            role        = cfg["role"],
-            warehouse   = cfg["warehouse"],
-            authenticator = "snowflake",   # <-- service account (no SSO)
+            account       = cfg["account"],
+            user          = cfg["user"],
+            password      = cfg["password"],
+            role          = cfg["role"],
+            warehouse     = cfg["warehouse"],
+            authenticator = "snowflake",   # service account (no SSO)
         )
         st.success("Service account connected.")
     except Exception as e:
         st.error(f"Failed to connect to Snowflake: {e}")
         st.stop()
 
-# Process pending prompt after rerun ---
-# Initialize pending prompt state
+# -----------------------
+# Session state inits
+# -----------------------
 if "pending_prompt" not in st.session_state:
     st.session_state.pending_prompt = None
+
+# Skip re-rendering of the last N messages in history (we set it after live render)
+if "_skip_tail" not in st.session_state:
+    st.session_state._skip_tail = 0
 
 
 def fetch_initial_suggestions() -> list[str]:
@@ -143,7 +143,7 @@ def fetch_initial_suggestions() -> list[str]:
     if resp.status_code >= 400:
         return []
 
-    suggestions: dict[int, str] = {}  # index → accumulated text
+    suggestions: dict[int, str] = {}
     events = sseclient.SSEClient(resp).events()
     for event in events:
         if event.event == "message.content.delta":
@@ -154,10 +154,7 @@ def fetch_initial_suggestions() -> list[str]:
                 suggestions[idx] = suggestions.get(idx, "") + delta
         elif event.event == "error":
             break
-    # Return complete suggestions in order
     return [s.strip() for _, s in sorted(suggestions.items())]
-
-
 
 
 # Initialize suggestions once
@@ -165,15 +162,11 @@ if "suggestions" not in st.session_state:
     st.session_state.suggestions = fetch_initial_suggestions()
 
 
-
 def get_conversation_history() -> list[dict[str, Any]]:
     messages = []
     for msg in st.session_state.messages:
         m: dict[str, Any] = {}
-        if msg["role"] == "user":
-            m["role"] = "user"
-        else:
-            m["role"] = "analyst"
+        m["role"] = "user" if msg["role"] == "user" else "analyst"
         text_content = "\n".join([c for c in msg["content"] if isinstance(c, str)])
         m["content"] = [{"type": "text", "text": text_content}]
         messages.append(m)
@@ -184,7 +177,6 @@ def send_message() -> requests.Response:
     """Calls the REST API and returns a streaming client."""
     request_body = {
         "messages": get_conversation_history(),
-        #"semantic_model_file": f"@{DATABASE}.{SCHEMA}.{STAGE}/{FILE}",
         "semantic_view": SEMANTIC_VIEW,
         "stream": True,
     }
@@ -211,7 +203,6 @@ def stream(events: Iterator[sseclient.Event]) -> Generator[Any, Any, Any]:
     while True:
         event = next(events, None)
         if not event:
-            # flush final suggestions
             st.session_state.suggestions = [s.strip() for _, s in sorted(suggestion_buffer.items())]
             return
 
@@ -248,8 +239,6 @@ def stream(events: Iterator[sseclient.Event]) -> Generator[Any, Any, Any]:
                 return
 
 
-
-
 def display_df(df: pd.DataFrame) -> None:
     if len(df) == 0:
         st.info("No data returned.")
@@ -257,17 +246,14 @@ def display_df(df: pd.DataFrame) -> None:
         st.dataframe(df)
 
 
-
 def append_message(role: str, content: list[Any]) -> None:
     """
     Cortex requires roles to alternate (user -> analyst -> user ...).
-    This helper ensures we don't accidentally push two of the same in a row.
     Filters out empty strings so we don't send invalid messages to Cortex.
     """
-    # Remove empty strings and None
     clean_content = [c for c in content if not (isinstance(c, str) and c.strip() == "")]
     if not clean_content:
-        return  # don’t append if nothing meaningful
+        return
 
     if st.session_state.messages and st.session_state.messages[-1]["role"] == role:
         st.session_state.messages[-1]["content"].extend(clean_content)
@@ -275,21 +261,26 @@ def append_message(role: str, content: list[Any]) -> None:
         st.session_state.messages.append({"role": role, "content": clean_content})
 
 
-
+# =========================
+# LIVE RENDER + HISTORY APPEND (no duplicates)
+# =========================
 def process_message(prompt: str) -> None:
-    """Processes a message and adds the response to the chat."""
-    #append_message("user", [prompt])  # ✅ Only append, don’t re-render manually
+    """Live-render the user/assistant for this turn, then append to history and
+    tell the history renderer to skip these two messages once."""
+    # Show the user bubble immediately
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
-    accumulated_content = []
-    sql_buffer = []
-    text_buffer = []
+    text_buffer: list[str] = []
+    sql_buffer: list[str] = []
+    accumulated_content: list[Any] = []
 
+    # Live assistant bubble with spinner
     with st.chat_message("assistant"):
         with st.spinner("Omega is thinking..."):
             response = send_message()
             events = sseclient.SSEClient(response).events()  # type: ignore
 
-            # Capture output
             while st.session_state.status.lower() != "done":
                 event = next(events, None)
                 if not event:
@@ -304,48 +295,65 @@ def process_message(prompt: str) -> None:
                 elif event.event == "error":
                     st.error(f"Error: {data}", icon="🚨")
                     return
+                elif event.event == "status":
+                    st.session_state.status = data["status_message"]
 
             final_sql = "".join(sql_buffer).strip()
+            interpretation = " ".join(text_buffer).strip()
 
-            # Show interpretation
-            if text_buffer and "".join(text_buffer).strip():
-                st.info(" ".join(text_buffer))
-                accumulated_content.append(" ".join(text_buffer))
+            # Interpretation first
+            if interpretation:
+                st.info(interpretation)
+                accumulated_content.append(interpretation)
 
-            # Execute SQL
+            # Execute SQL & show results
             if final_sql:
                 with st.spinner("Executing query..."):
                     df = pd.read_sql(final_sql, st.session_state.CONN)
                     accumulated_content.append(df)
                     display_df(df)
 
-            # SQL block
+            # SQL expander
             if final_sql:
                 with st.expander("Show SQL query"):
                     st.code(final_sql, language="sql")
+                # Keep SQL in history as a lightweight dict
+                accumulated_content.append({"_omega_sql": final_sql})
 
     st.session_state.status = "Interpreting question"
     append_message("analyst", accumulated_content)
 
+    # We live-rendered this turn (user + analyst), so skip re-rendering them once.
+    st.session_state._skip_tail = 2
 
 
-
-
-
+# =========================
+# HISTORY RENDERER (skips the live-rendered tail once)
+# =========================
 def show_conversation_history() -> None:
-    for message in st.session_state.messages:
+    msgs = st.session_state.messages
+    total = len(msgs)
+    skip_tail = st.session_state.get("_skip_tail", 0)
+
+    for idx, message in enumerate(msgs):
+        if skip_tail and idx >= total - skip_tail:
+            continue
+
         chat_role = "assistant" if message["role"] == "analyst" else "user"
         with st.chat_message(chat_role):
             for content in message["content"]:
                 if isinstance(content, pd.DataFrame):
                     display_df(content)
+                elif isinstance(content, dict) and "_omega_sql" in content:
+                    with st.expander("Show SQL query"):
+                        st.code(content["_omega_sql"], language="sql")
                 elif isinstance(content, Exception):
                     st.error(f"Error while processing request:\n {content}", icon="🚨")
                 else:
                     st.write(content)
 
-
-
+    # Reset skip for the next render pass
+    st.session_state._skip_tail = 0
 
 
 if "messages" not in st.session_state:
@@ -357,35 +365,28 @@ if "messages" not in st.session_state:
 # --- Spacer pushes sample questions down to input ---
 st.markdown("<div style='flex:1;'></div>", unsafe_allow_html=True)
 
-
 # --- Placeholder for sample questions (just above chat input) ---
 sample_container = st.container()
-
 
 # --- CSS for professional style ---
 st.markdown(
     """
     <style>
-        /* Remove gap: pull samples right above input */
         .stChatInputContainer {
             margin-top: 0px !important;
-            margin-bottom: 20px !important; /* smaller than before */
+            margin-bottom: 20px !important;
         }
-
-        /* Section title */
         .sample-title {
             font-weight: 600;
             font-size: 15px;
             color: #333;
             margin-bottom: 6px;
         }
-
-        /* Sample question buttons as modern chips */
         .stButton > button {
             border-radius: 18px !important;
             border: 1px solid rgba(0, 0, 0, 0.1) !important;
             background-color: #f9f9f9 !important;
-            backdrop-filter: blur(6px); /* glass effect */
+            backdrop-filter: blur(6px);
             color: rgba(0, 0, 0, 0.75) !important;
             font-size: 14px !important;
             font-weight: 400 !important;
@@ -394,8 +395,6 @@ st.markdown(
             text-align: left !important;
             white-space: normal !important;
         }
-
-        /* Hover effect in Omega blue */
         .stButton > button:hover {
             background-color: rgba(0, 75, 135, 0.12) !important;
             border-color: #004b87 !important;
@@ -406,34 +405,19 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- Render sample questions above input ---
-#with sample_container:
-#    if not st.session_state.messages and st.session_state.get("suggestions"):
-#        st.markdown('<div class="sample-title">💡 Try asking…</div>', unsafe_allow_html=True)
-#        for s in st.session_state.suggestions:
-#            if st.button(s, use_container_width=True):
-#                st.session_state.chat_started = True
-#                process_message(prompt=s)
-#                st.session_state.suggestions = []
-#                st.rerun()
-
-
-# --- Placeholder for suggestions (so we can clear them before rerun) ---
+# --- Placeholder we can clear before rerun ---
 sample_container = st.empty()
-
 
 # --- Chat input (always bottom) ---
 user_input = st.chat_input("What insight would you like to see?")
-
 
 # --- Handle manual chat input ---
 if user_input:
     st.session_state.chat_started = True
     st.session_state.pending_prompt = user_input
     st.session_state.suggestions = []
-    sample_container.empty() # ✅ Clear immediately
+    sample_container.empty()
     st.rerun()
-
 
 # --- Render sample questions above input (only before first prompt) ---
 if not st.session_state.get("chat_started") and st.session_state.get("suggestions"):
@@ -443,25 +427,20 @@ if not st.session_state.get("chat_started") and st.session_state.get("suggestion
             if st.button(s, key=f"sample_{s}", use_container_width=True):
                 st.session_state.chat_started = True
                 st.session_state.pending_prompt = s
-                st.session_state.from_button = True # track source
                 st.session_state.suggestions = []
-                sample_container.empty() # Clear immediately
+                sample_container.empty()
                 st.rerun()
-
 
 # --- Process pending prompt (typed or button) ---
 if st.session_state.get("pending_prompt"):
     prompt = st.session_state.pending_prompt
     st.session_state.pending_prompt = None
-    st.session_state.from_button = False # reset always
-    
-    append_message("user", [prompt]) # Always append the user message ONCE here only
-    process_message(prompt)
 
+    # Append user message once to history (persisted)
+    append_message("user", [prompt])
+
+    # Live-render this turn; history renderer will skip these two once
+    process_message(prompt)
 
 # --- Show history after everything ---
 show_conversation_history()
-
-
-
-
