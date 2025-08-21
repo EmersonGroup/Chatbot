@@ -243,18 +243,28 @@ def stream(events: Iterator[sseclient.Event]) -> Generator[Any, Any, Any]:
 
 
 
-def display_df(df: pandas.DataFrame) -> None:
+def display_df(df: pd.DataFrame) -> None:
     if len(df.index) > 1:
         data_tab, line_tab, bar_tab = st.tabs(["Data", "Line Chart", "Bar Chart"])
         data_tab.dataframe(df)
-        if len(df.columns) > 1:
-            df = df.set_index(df.columns[0])
-        with line_tab:
-            st.line_chart(df)
-        with bar_tab:
-            st.bar_chart(df)
+
+        try:
+            # Only attempt charts if there’s more than 1 column
+            if len(df.columns) > 1:
+                df_chart = df.set_index(df.columns[0])
+                with line_tab:
+                    st.line_chart(df_chart)
+                with bar_tab:
+                    st.bar_chart(df_chart)
+            else:
+                line_tab.info("Not enough columns for chart.")
+                bar_tab.info("Not enough columns for chart.")
+        except Exception as e:
+            line_tab.warning(f"Chart not available: {e}")
+            bar_tab.warning(f"Chart not available: {e}")
     else:
         st.dataframe(df)
+
 
 def append_message(role: str, content: list[Any]) -> None:
     """
