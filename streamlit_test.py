@@ -244,40 +244,36 @@ def stream(events: Iterator[sseclient.Event]) -> Generator[Any, Any, Any]:
 
 
 def display_df(df: pd.DataFrame) -> None:
-    if len(df.index) > 1:
-        data_tab, chart_tab = st.tabs(["Data", "Chart"])
-        data_tab.dataframe(df)
+    if len(df) == 0:
+        st.info("No data returned.")
+        return
 
-        # Try to auto-detect X and Y
-        try:
-            x_col = None
-            y_cols = []
+    data_tab, chart_tab = st.tabs(["Data", "Chart"])
+    data_tab.dataframe(df)
 
-            # Prefer date column
-            for col in df.columns:
-                if "date" in col.lower() or "week" in col.lower():
-                    x_col = col
-                    break
+    try:
+        # detect numeric vs categorical/date
+        numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
+        date_cols = [c for c in df.columns if "date" in c.lower() or "week" in c.lower()]
+        cat_cols = [c for c in df.columns if df[c].dtype == "object" and df[c].nunique() < 20]
 
-            # Otherwise prefer first categorical col
-            if not x_col:
-                for col in df.columns:
-                    if df[col].dtype == "object":
-                        x_col = col
-                        break
+        # prefer date for line chart
+        if date_cols and numeric_cols:
+            x = date_cols[0]
+            y = numeric_cols
+            chart_tab.line_chart(df.set_index(x)[y])
 
-            # Pick numeric columns for Y
-            y_cols = [col for col in df.columns if pd.api.types.is_numeric_dtype(df[col])]
+        # else use categorical for bar chart
+        elif cat_cols and numeric_cols:
+            x = cat_cols[0]
+            y = numeric_cols[0]  # just the first numeric (to keep clean)
+            chart_tab.bar_chart(df.set_index(x)[y])
 
-            if x_col and y_cols:
-                df_chart = df[[x_col] + y_cols].set_index(x_col)
-                chart_tab.line_chart(df_chart)
-            else:
-                chart_tab.info("No suitable chart available for this result.")
-        except Exception as e:
-            chart_tab.warning(f"Chart not available: {e}")
-    else:
-        st.dataframe(df)
+        else:
+            chart_tab.info("Chart not available for this result.")
+    except Exception as e:
+        chart_tab.warning(f"Chart could not be rendered: {e}")
+
 
 
 
