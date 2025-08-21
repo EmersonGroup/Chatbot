@@ -364,7 +364,6 @@ if "messages" not in st.session_state:
     st.session_state.status = "Interpreting question"
     st.session_state.error = None
 
-show_conversation_history()
 
 # --- Spacer pushes sample questions down to input ---
 st.markdown("<div style='flex:1;'></div>", unsafe_allow_html=True)
@@ -435,6 +434,12 @@ with sample_container:
 # --- Handle chat input ---
 if user_input:
     st.session_state.chat_started = True
-    st.session_state.suggestions = []  # clear suggestions once chat starts
+    #st.session_state.suggestions = []  # clear suggestions once chat starts
     process_message(prompt=user_input)
+
+show_conversation_history()
+
+
+
+
 
