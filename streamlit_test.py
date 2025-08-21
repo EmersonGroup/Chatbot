@@ -275,17 +275,19 @@ def process_message(prompt: str) -> None:
         st.markdown(prompt)
 
     accumulated_content = []
+    sql_buffer = []  # <-- store SQL here
+
     with st.chat_message("assistant"):
         with st.spinner("Sending request..."):
             response = send_message()
-        st.markdown(
-            f"```request_id: {response.headers.get('X-Snowflake-Request-Id')}```"
-        )
+
         events = sseclient.SSEClient(response).events()  # type: ignore
+
         while st.session_state.status.lower() != "done":
             with st.spinner(st.session_state.status):
                 written_content = st.write_stream(stream(events))
                 accumulated_content.append(written_content)
+
             if st.session_state.error:
                 st.error(
                     f"Error while processing request:\n {st.session_state.error}",
@@ -296,16 +298,29 @@ def process_message(prompt: str) -> None:
                 st.session_state.status = "Interpreting question"
                 st.session_state.messages.pop()
                 return
+
+            # Capture SQL but don't render it yet
             pattern = r"```sql\s*(.*?)\s*```"
             sql_blocks = re.findall(pattern, written_content, re.DOTALL | re.IGNORECASE)
             if sql_blocks:
-                for sql_query in sql_blocks:
-                    with st.spinner("Executing Query"):
-                        df = pd.read_sql(sql_query, st.session_state.CONN)
-                        accumulated_content.append(df)
-                        display_df(df)
+                sql_buffer.extend(sql_blocks)
+
+        # ✅ Execute queries and show results first
+        for sql_query in sql_buffer:
+            with st.spinner("Executing query..."):
+                df = pd.read_sql(sql_query, st.session_state.CONN)
+                accumulated_content.append(df)
+                display_df(df)
+
+        # ✅ SQL shown only if user expands
+        if sql_buffer:
+            with st.expander("Show SQL query"):
+                for sql_query in sql_buffer:
+                    st.code(sql_query, language="sql")
+
     st.session_state.status = "Interpreting question"
     append_message("analyst", accumulated_content)
+
 
 
 def show_conversation_history() -> None:
