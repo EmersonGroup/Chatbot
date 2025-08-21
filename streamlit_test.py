@@ -357,6 +357,11 @@ if not st.session_state.get("chat_started") and st.session_state.get("suggestion
                 sample_container.empty()
                 st.rerun()
 
+
+# --- Show history when not actively processing ---
+show_conversation_history()
+
+
 # --- Process pending prompt (typed or button) ---
 if st.session_state.get("pending_prompt"):
     prompt = st.session_state.pending_prompt
@@ -367,7 +372,3 @@ if st.session_state.get("pending_prompt"):
 
     # Live-render this turn; will append assistant and rerun internally
     process_message(prompt)
-
-# --- Show history when not actively processing ---
-if not st.session_state.get("pending_prompt"):
-    show_conversation_history()
