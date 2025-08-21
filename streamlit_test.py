@@ -12,23 +12,17 @@ import sseclient
 import streamlit as st
 import altair as alt
 
-#DATABASE = "OMEGA"
-#SCHEMA = "PROD"
-#STAGE = "CORTEX_STAGE"
-#FILE = "cortex_test_v2.yaml"
+# DATABASE / VIEW
 DATABASE = "OMEGA"
 SCHEMA = "PROD"
 SEMANTIC_VIEW = "OMEGA.PROD.CORTEX_TEST_V1"
-
 
 # --- Page Config with Omega logo as favicon (resized for clarity) ---
 omega_icon = Image.open("assets/Omega logo v1.png").resize((64, 64))
 st.set_page_config(
     page_title="OMEGA ChatBot",
     page_icon=omega_icon,
-    # layout="wide"   # ❌ remove this → defaults to normal centered layout
 )
-
 
 # =========================
 # LOGOS (read first, then use in CSS)
@@ -82,7 +76,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
 # =========================
 # OMEGA HEADER
 # =========================
@@ -118,11 +111,10 @@ if "CONN" not in st.session_state or st.session_state.CONN is None:
 # -----------------------
 if "pending_prompt" not in st.session_state:
     st.session_state.pending_prompt = None
-
-# Skip re-rendering of the last N messages in history (we set it after live render)
-if "_skip_tail" not in st.session_state:
-    st.session_state._skip_tail = 0
-
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+    st.session_state.status = "idle"
+    st.session_state.error = None
 
 def fetch_initial_suggestions() -> list[str]:
     """Fetch default recommendations from Cortex Analyst."""
@@ -156,13 +148,12 @@ def fetch_initial_suggestions() -> list[str]:
             break
     return [s.strip() for _, s in sorted(suggestions.items())]
 
-
 # Initialize suggestions once
 if "suggestions" not in st.session_state:
     st.session_state.suggestions = fetch_initial_suggestions()
 
-
 def get_conversation_history() -> list[dict[str, Any]]:
+    """Only send plain text content to Cortex."""
     messages = []
     for msg in st.session_state.messages:
         m: dict[str, Any] = {}
@@ -171,7 +162,6 @@ def get_conversation_history() -> list[dict[str, Any]]:
         m["content"] = [{"type": "text", "text": text_content}]
         messages.append(m)
     return messages
-
 
 def send_message() -> requests.Response:
     """Calls the REST API and returns a streaming client."""
@@ -194,80 +184,28 @@ def send_message() -> requests.Response:
     else:
         raise Exception(f"Failed request with status {resp.status_code}: {resp.text}")
 
-
-def stream(events: Iterator[sseclient.Event]) -> Generator[Any, Any, Any]:
-    prev_index = -1
-    prev_type = ""
-    suggestion_buffer: dict[int, str] = {}
-
-    while True:
-        event = next(events, None)
-        if not event:
-            st.session_state.suggestions = [s.strip() for _, s in sorted(suggestion_buffer.items())]
-            return
-
-        data = json.loads(event.data)
-        new_content_block = event.event != "message.content.delta" or data["index"] != prev_index
-
-        if prev_type == "sql" and new_content_block:
-            yield "\n```\n\n"
-
-        match event.event:
-            case "message.content.delta":
-                match data["type"]:
-                    case "sql":
-                        if new_content_block:
-                            yield "```sql\n"
-                        yield data["statement_delta"]
-                    case "text":
-                        yield data["text_delta"]
-                    case "suggestions":
-                        idx = data["suggestions_delta"]["index"]
-                        delta = data["suggestions_delta"]["suggestion_delta"]
-                        suggestion_buffer[idx] = suggestion_buffer.get(idx, "") + delta
-                        st.session_state.suggestions = [s.strip() for _, s in sorted(suggestion_buffer.items())]
-
-                prev_index = data["index"]
-                prev_type = data["type"]
-
-            case "status":
-                st.session_state.status = data["status_message"]
-                return
-
-            case "error":
-                st.session_state.error = data
-                return
-
-
 def display_df(df: pd.DataFrame) -> None:
     if len(df) == 0:
         st.info("No data returned.")
     else:
         st.dataframe(df)
 
-
 def append_message(role: str, content: list[Any]) -> None:
-    """
-    Cortex requires roles to alternate (user -> analyst -> user ...).
-    Filters out empty strings so we don't send invalid messages to Cortex.
-    """
+    """Append one message to our persisted history."""
     clean_content = [c for c in content if not (isinstance(c, str) and c.strip() == "")]
     if not clean_content:
         return
-
     if st.session_state.messages and st.session_state.messages[-1]["role"] == role:
         st.session_state.messages[-1]["content"].extend(clean_content)
     else:
         st.session_state.messages.append({"role": role, "content": clean_content})
 
-
 # =========================
-# LIVE RENDER + HISTORY APPEND (no duplicates)
+# LIVE RENDER this turn, then append and rerun
 # =========================
 def process_message(prompt: str) -> None:
-    """Live-render the user/assistant for this turn, then append to history and
-    tell the history renderer to skip these two messages once."""
-    # Show the user bubble immediately (history append happens before this call)
+    """Live-render this turn (user + spinner + results), then append to history and rerun."""
+    # Live user bubble
     with st.chat_message("user"):
         st.markdown(prompt)
 
@@ -277,13 +215,11 @@ def process_message(prompt: str) -> None:
 
     with st.chat_message("assistant"):
         with st.spinner("Omega is thinking..."):
-            # 🔧 IMPORTANT: reset status before starting a fresh stream
             st.session_state.status = "starting"
-
             response = send_message()
             events = sseclient.SSEClient(response).events()  # type: ignore
 
-            # Stream until we explicitly see a status 'done'
+            # Stream until 'done' or the stream ends
             for event in events:
                 if not event:
                     break
@@ -309,12 +245,10 @@ def process_message(prompt: str) -> None:
             final_sql = "".join(sql_buffer).strip()
             interpretation = " ".join(text_buffer).strip()
 
-            # Interpretation first
             if interpretation:
                 st.info(interpretation)
                 accumulated_content.append(interpretation)
 
-            # Execute SQL & show results
             if final_sql:
                 with st.spinner("Executing query..."):
                     df = pd.read_sql(final_sql, st.session_state.CONN)
@@ -323,28 +257,20 @@ def process_message(prompt: str) -> None:
 
                 with st.expander("Show SQL query"):
                     st.code(final_sql, language="sql")
-                # Keep a lightweight record of SQL in history
                 accumulated_content.append({"_omega_sql": final_sql})
 
-    # Persist the assistant turn, and tell the history renderer not to re-render this pair once
+    # persist assistant turn
     append_message("analyst", accumulated_content)
-    st.session_state._skip_tail = 2
     st.session_state.status = "idle"
 
-
+    # Rerun so the next pass renders the full history (no duplicates)
+    st.rerun()
 
 # =========================
-# HISTORY RENDERER (skips the live-rendered tail once)
+# HISTORY (simple, no skip-tail)
 # =========================
 def show_conversation_history() -> None:
-    msgs = st.session_state.messages
-    total = len(msgs)
-    skip_tail = st.session_state.get("_skip_tail", 0)
-
-    for idx, message in enumerate(msgs):
-        if skip_tail and idx >= total - skip_tail:
-            continue
-
+    for message in st.session_state.messages:
         chat_role = "assistant" if message["role"] == "analyst" else "user"
         with st.chat_message(chat_role):
             for content in message["content"]:
@@ -357,16 +283,6 @@ def show_conversation_history() -> None:
                     st.error(f"Error while processing request:\n {content}", icon="🚨")
                 else:
                     st.write(content)
-
-    # Reset skip for the next render pass
-    st.session_state._skip_tail = 0
-
-
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-    st.session_state.status = "Interpreting question"
-    st.session_state.error = None
-
 
 # --- Spacer pushes sample questions down to input ---
 st.markdown("<div style='flex:1;'></div>", unsafe_allow_html=True)
@@ -442,11 +358,12 @@ if st.session_state.get("pending_prompt"):
     prompt = st.session_state.pending_prompt
     st.session_state.pending_prompt = None
 
-    # Append user message once to history (persisted)
+    # Append user to history once (persisted)
     append_message("user", [prompt])
 
-    # Live-render this turn; history renderer will skip these two once
+    # Live-render this turn; will append assistant and rerun internally
     process_message(prompt)
 
-# --- Show history after everything ---
-show_conversation_history()
+# --- Show history when not actively processing ---
+if not st.session_state.get("pending_prompt"):
+    show_conversation_history()
