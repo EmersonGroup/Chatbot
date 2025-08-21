@@ -372,3 +372,7 @@ if st.session_state.get("pending_prompt"):
 
     # Live-render this turn; will append assistant and rerun internally
     process_message(prompt)
+
+
+
+    
