@@ -278,20 +278,18 @@ def append_message(role: str, content: list[Any]) -> None:
 
 def process_message(prompt: str) -> None:
     """Processes a message and adds the response to the chat."""
-    append_message("user", [prompt])
-    with st.chat_message("user"):
-        st.markdown(prompt)
+    append_message("user", [prompt])  # ✅ Only append, don’t re-render manually
 
     accumulated_content = []
     sql_buffer = []
     text_buffer = []
 
     with st.chat_message("assistant"):
-        with st.spinner("Omega is thinking..."):   # 🟢 Keep spinner alive
+        with st.spinner("Omega is thinking..."):
             response = send_message()
             events = sseclient.SSEClient(response).events()  # type: ignore
 
-            # --- Capture Analyst output (don’t render yet) ---
+            # Capture output
             while st.session_state.status.lower() != "done":
                 event = next(events, None)
                 if not event:
@@ -307,29 +305,28 @@ def process_message(prompt: str) -> None:
                     st.error(f"Error: {data}", icon="🚨")
                     return
 
-            # 🟢 Now spinner stays until query finishes
             final_sql = "".join(sql_buffer).strip()
 
-            # --- Show interpretation text FIRST ---
+            # Show interpretation
             if text_buffer and "".join(text_buffer).strip():
-                st.info(" ".join(text_buffer))   # styled nicely
+                st.info(" ".join(text_buffer))
                 accumulated_content.append(" ".join(text_buffer))
-                #st.markdown(" ".join(text_buffer))
 
-            # --- Execute SQL & show results ---
+            # Execute SQL
             if final_sql:
                 with st.spinner("Executing query..."):
                     df = pd.read_sql(final_sql, st.session_state.CONN)
                     accumulated_content.append(df)
                     display_df(df)
 
-            # --- Show SQL last (toggle) ---
+            # SQL block
             if final_sql:
                 with st.expander("Show SQL query"):
                     st.code(final_sql, language="sql")
 
     st.session_state.status = "Interpreting question"
     append_message("analyst", accumulated_content)
+
 
 
 
