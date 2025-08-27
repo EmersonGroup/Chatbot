@@ -18,10 +18,10 @@ SCHEMA = "PROD"
 SEMANTIC_VIEW = "OMEGA.PROD.CORTEX_TEST_V1"
 
 # --- Page Config with Omega logo as favicon (resized for clarity) ---
-omega_icon = Image.open("assets/Omega logo v1.png").resize((64, 64))
+# omega_icon = Image.open("assets/Omega logo v1.png").resize((64, 64))
 st.set_page_config(
     page_title="OMEGA ChatBot",
-    page_icon=omega_icon,
+    #page_icon=omega_icon,
 )
 
 # =========================
